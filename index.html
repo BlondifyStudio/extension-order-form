@@ -2182,6 +2182,7 @@ function restoreValue(value) {
 }
 
 function resize() {
+
   if (
     typeof JFCustomWidget ===
     'undefined'
@@ -2190,32 +2191,47 @@ function resize() {
   }
 
   setTimeout(
-    () => {
+    function() {
+
+      const height =
+        Math.max(
+          document.documentElement.scrollHeight,
+          document.body.scrollHeight
+        )
+        +
+        80;
+
       JFCustomWidget
         .requestFrameResize({
-          height:
-            document
-              .body
-              .scrollHeight
-            +
-            10
+          height: height
         });
+
     },
-    50
+    150
   );
 }
 
-$('method')
-  .addEventListener(
-    'change',
-    onMethod
-  );
 
-$('style')
-  .addEventListener(
-    'change',
-    onStyle
+function observeWidgetSize() {
+
+  if (
+    typeof ResizeObserver ===
+    'undefined'
+  ) {
+    return;
+  }
+
+  const observer =
+    new ResizeObserver(
+      function() {
+        resize();
+      }
+    );
+
+  observer.observe(
+    document.body
   );
+}
 
 $('product')
   .addEventListener(
@@ -3174,7 +3190,8 @@ if (
     function(data) {
 
       widgetReady = true;
-
+observeWidgetSize();
+      
       bootWidget(
         data && data.value
           ? data.value
