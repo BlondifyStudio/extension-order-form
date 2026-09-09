@@ -2233,7 +2233,19 @@ function observeWidgetSize() {
   );
 }
 
-$('product')
+$('method')
+  .addEventListener(
+    'change',
+    onMethod
+  );
+
+$('style')
+  .addEventListener(
+    'change',
+    onStyle
+  );
+
+  $('product')
   .addEventListener(
     'change',
     onProduct
