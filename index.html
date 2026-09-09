@@ -845,14 +845,17 @@ function onMethod() {
   }
 
   const rows =
-    filtered({
-      'Method':method
-    });
+    catalog.filter(
+      row =>
+        clean(row['Method']) ===
+        clean(method)
+    );
 
   const styles =
     uniq(
       rows.map(
-        r => r['Extension Style']
+        row =>
+          row['Extension Style']
       )
     );
 
@@ -866,15 +869,31 @@ function onMethod() {
       styles,
       'Select extension style…'
     );
-  } else {
-    $('styleWrap')
-      .classList
-      .add('hidden');
 
-    $('style').value = '';
-
-    loadProducts();
+    return;
   }
+
+  $('styleWrap')
+    .classList
+    .add('hidden');
+
+  $('style').value = '';
+
+  const products =
+    uniq(
+      rows.map(
+        row =>
+          row[
+            'Brand — Collection — Texture'
+          ]
+      )
+    );
+
+  optionize(
+    $('product'),
+    products,
+    'Select brand / collection / texture…'
+  );
 }
 
 function onStyle() {
@@ -1225,7 +1244,8 @@ function updateSourcingUI() {
   }
 
   validateAddButton();
-resize();
+  resize();
+}
 
 function updateInventoryDisplay() {
   if (!currentLeaf) {
@@ -1320,7 +1340,8 @@ function updateInventoryDisplay() {
     .remove('hidden');
 
   validateAddButton();
-resize();
+  resize();
+}
 
 function validateAddButton() {
   if (
@@ -2193,21 +2214,28 @@ function resize() {
   setTimeout(
     function() {
 
-      const height =
+      const contentHeight =
         Math.max(
+          document.body.scrollHeight,
+          document.body.offsetHeight,
           document.documentElement.scrollHeight,
-          document.body.scrollHeight
-        )
-        +
-        80;
+          document.documentElement.offsetHeight,
+          document.documentElement.clientHeight
+        );
+
+      const requestedHeight =
+        Math.max(
+          1500,
+          contentHeight + 150
+        );
 
       JFCustomWidget
         .requestFrameResize({
-          height: height
+          height: requestedHeight
         });
 
     },
-    150
+    250
   );
 }
 
@@ -2245,7 +2273,7 @@ $('style')
     onStyle
   );
 
-  $('product')
+$('product')
   .addEventListener(
     'change',
     onProduct
@@ -3202,7 +3230,7 @@ if (
     function(data) {
 
       widgetReady = true;
-observeWidgetSize();
+      observeWidgetSize();
       
       bootWidget(
         data && data.value
