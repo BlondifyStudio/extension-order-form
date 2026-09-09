@@ -2163,6 +2163,7 @@ function escapeHtml(str) {
 }
 
 function sendLiveData() {
+
   if (
     !widgetReady
     ||
@@ -2172,12 +2173,129 @@ function sendLiveData() {
     return;
   }
 
+  const data =
+    payload();
+
   JFCustomWidget.sendData({
     value:
       JSON.stringify(
-        payload()
+        data
       )
   });
+
+  pushQuoteFieldsToJotform(
+    data
+  );
+}
+
+  function pushQuoteFieldsToJotform(
+  existingData = null
+) {
+
+  if (
+    !widgetReady
+    ||
+    typeof JFCustomWidget ===
+      'undefined'
+    ||
+    typeof JFCustomWidget
+      .setFieldsValueByLabel !==
+      'function'
+  ) {
+    return;
+  }
+
+  const data =
+    existingData ||
+    payload();
+
+  const description =
+    quoteItems
+      .map(
+        (item,index) =>
+          `Hair Extension #${index + 1}: ${humanDescription(item)}`
+      )
+      .join('\n');
+
+  const fields = [
+
+    {
+      label:
+        'Extension Hair Description',
+      value:
+        description
+    },
+
+    {
+      label:
+        'Extension Total Hair',
+      value:
+        data.totalHair === '—'
+          ? ''
+          : data.totalHair
+    },
+
+    {
+      label:
+        'Extension Total Grams',
+      value:
+        String(
+          data.totalGrams || 0
+        )
+    },
+
+    {
+      label:
+        'Extension Hair Cost',
+      value:
+        String(
+          data.hairCost || 0
+        )
+    },
+
+    {
+      label:
+        'Extension Needs Sourcing',
+      value:
+        data.sourcingNeeded
+          ? 'Yes'
+          : 'No'
+    },
+
+    {
+      label:
+        'Extension Sourcing Summary',
+      value:
+        data.sourcingSummary || ''
+    },
+
+    {
+      label:
+        'Extension Overnight Fee',
+      value:
+        String(
+          data.overnightShippingFee || 0
+        )
+    }
+
+  ];
+
+  try {
+
+    JFCustomWidget
+      .setFieldsValueByLabel(
+        fields
+      );
+
+  }
+  catch(error) {
+
+    console.warn(
+      'Could not push quote fields to Jotform:',
+      error
+    );
+
+  }
 }
 
 function restoreValue(value) {
