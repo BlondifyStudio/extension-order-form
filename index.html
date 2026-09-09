@@ -1,0 +1,2519 @@
+<!doctype html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1"
+>
+
+<script
+  src="https://js.jotform.com/JotFormCustomWidget.min.js">
+</script>
+
+<style>
+
+:root {
+  --text:#302a31;
+  --muted:#756d77;
+  --line:#ddd7df;
+  --soft:#f7f4f8;
+  --panel:#ffffff;
+  --accent:#6f5a71;
+  --success:#36724b;
+  --warning:#8b5b19;
+  --danger:#a03d3d;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  padding:14px;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+  color:var(--text);
+  background:transparent;
+}
+
+.card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.full {
+  grid-column:1/-1;
+}
+
+label {
+  display:block;
+  margin:0 0 6px;
+  font-size:13px;
+  font-weight:650;
+}
+
+select,
+input {
+  width:100%;
+  min-height:44px;
+  padding:9px 11px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+}
+
+select:disabled,
+input:disabled {
+  background:var(--soft);
+  color:var(--muted);
+}
+
+.hidden {
+  display:none !important;
+}
+
+.meta {
+  margin-top:12px;
+  padding:12px;
+  background:var(--soft);
+  border-radius:10px;
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+  gap:10px;
+  font-size:13px;
+}
+
+.meta strong {
+  display:block;
+  margin-top:3px;
+  font-size:15px;
+}
+
+.status {
+  margin-top:12px;
+  padding:12px;
+  border-radius:10px;
+  font-size:13px;
+}
+
+.status.ok {
+  background:#eef8f1;
+  color:var(--success);
+}
+
+.status.warn {
+  background:#fff6e7;
+  color:var(--warning);
+}
+
+.status.error {
+  background:#fff0f0;
+  color:var(--danger);
+}
+
+.button-row {
+  display:flex;
+  gap:9px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+button {
+  border:0;
+  border-radius:9px;
+  min-height:42px;
+  padding:0 15px;
+  cursor:pointer;
+  font-weight:650;
+}
+
+.primary {
+  background:var(--accent);
+  color:#fff;
+}
+
+.secondary {
+  background:var(--soft);
+  border:1px solid var(--line);
+  color:var(--text);
+}
+
+.primary:disabled {
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.quote {
+  margin-top:16px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+}
+
+.quote h3 {
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+.item {
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+
+.item-title {
+  font-weight:650;
+  font-size:13px;
+}
+
+.item-sub {
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.remove {
+  background:transparent;
+  color:var(--danger);
+  padding:0 4px;
+  min-height:auto;
+}
+
+.totals {
+  margin-top:12px;
+  padding:13px;
+  border-radius:10px;
+  background:var(--soft);
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.total-label {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.total-value {
+  margin-top:3px;
+  font-size:20px;
+  font-weight:750;
+}
+
+.loading {
+  color:var(--muted);
+  font-size:13px;
+}
+
+.fee {
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+@media(max-width:560px) {
+  .grid,
+  .meta,
+  .totals {
+    grid-template-columns:1fr;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<div
+  id="loading"
+  class="loading">
+  Loading extension catalog…
+</div>
+
+<div
+  id="app"
+  class="hidden">
+
+<div class="grid">
+
+<div class="full">
+
+<label for="location">
+Extension Service Location
+</label>
+
+<select id="location">
+
+<option value="">
+Select extension service location…
+</option>
+
+<option value="EV">
+Blondify East Village
+</option>
+
+<option value="WL">
+Blondify Williamsburg
+</option>
+
+<option value="BR">
+Brunettify
+</option>
+
+</select>
+
+</div>
+
+<div>
+
+<label for="method">
+Method
+</label>
+
+<select id="method"></select>
+
+</div>
+
+<div
+  id="styleWrap"
+  class="hidden">
+
+<label for="style">
+Extension Style
+</label>
+
+<select id="style"></select>
+
+</div>
+
+<div class="full">
+
+<label for="product">
+Brand / Collection / Texture
+</label>
+
+<select
+  id="product"
+  disabled>
+</select>
+
+</div>
+
+<div
+  id="specialWrap"
+  class="full hidden">
+
+<label for="special">
+H&C Special Batch
+</label>
+
+<select id="special"></select>
+
+</div>
+
+<div>
+
+<label for="length">
+Length
+</label>
+
+<select
+  id="length"
+  disabled>
+</select>
+
+</div>
+
+<div class="full">
+
+<label for="shade">
+Shade
+</label>
+
+<select
+  id="shade"
+  disabled>
+</select>
+
+</div>
+
+<div>
+
+<label for="qty">
+Quantity
+</label>
+
+<input
+  id="qty"
+  type="number"
+  min="1"
+  max="100"
+  step="1"
+  value="1"
+>
+
+</div>
+
+</div>
+
+<div
+  id="conflict"
+  class="status error hidden">
+</div>
+
+<div
+  id="selectionMeta"
+  class="meta hidden">
+
+<div>
+Package Size
+<strong id="packageSize">—</strong>
+</div>
+
+<div>
+Grams / Item
+<strong id="unitGrams">—</strong>
+</div>
+
+<div>
+Client Cost / Item
+<strong id="unitCost">—</strong>
+</div>
+
+</div>
+
+<div
+  id="inventoryMeta"
+  class="meta hidden">
+
+<div>
+East Village Stock
+<strong id="evStock">0</strong>
+</div>
+
+<div>
+Williamsburg Stock
+<strong id="wlStock">0</strong>
+</div>
+
+<div>
+Brunettify Stock
+<strong id="brStock">0</strong>
+</div>
+
+<div>
+Available at Selected Salon
+<strong id="selectedStock">0</strong>
+</div>
+
+<div>
+Quantity Needed
+<strong id="qtyNeeded">1</strong>
+</div>
+
+<div>
+Needs Sourcing
+<strong id="needsSourcing">0</strong>
+</div>
+
+</div>
+
+<div
+  id="stockStatus"
+  class="status hidden">
+</div>
+
+<div
+  id="sourcingWrap"
+  class="hidden"
+  style="margin-top:12px">
+
+<label for="sourcingMethod">
+How should this hair be sourced?
+</label>
+
+<select id="sourcingMethod">
+
+<option value="">
+Select sourcing method…
+</option>
+
+</select>
+
+<div
+  id="transferFromWrap"
+  class="hidden"
+  style="margin-top:10px">
+
+<label for="transferFrom">
+Transfer From
+</label>
+
+<select id="transferFrom">
+
+<option value="">
+Select salon…
+</option>
+
+</select>
+
+</div>
+
+<div
+  id="overnightNote"
+  class="status warn hidden">
+
+Overnight shipping adds
+<strong>$50 once per quote</strong>.
+
+</div>
+
+</div>
+
+<div class="button-row">
+
+<button
+  id="addBtn"
+  class="primary"
+  disabled>
+
+Add to Quote
+
+</button>
+
+<button
+  id="clearSelectionBtn"
+  class="secondary">
+
+Clear Selection
+
+</button>
+
+</div>
+
+<div class="quote">
+
+<h3>
+Hair Quote
+</h3>
+
+<div id="items">
+
+<div class="loading">
+No hair added yet.
+</div>
+
+</div>
+
+<div class="totals">
+
+<div>
+
+<div class="total-label">
+Total Hair
+</div>
+
+<div
+  class="total-value"
+  id="totalHair">
+—
+</div>
+
+</div>
+
+<div>
+
+<div class="total-label">
+Total Grams
+</div>
+
+<div
+  class="total-value"
+  id="totalGrams">
+0g
+</div>
+
+</div>
+
+<div>
+
+<div class="total-label">
+Hair Cost
+</div>
+
+<div
+  class="total-value"
+  id="totalCost">
+$0.00
+</div>
+
+<div
+  id="shippingFeeNote"
+  class="fee hidden">
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const LOCATIONS = {
+  EV: {
+    label:'Blondify East Village',
+    stockColumn:'Blondify East Village Stock'
+  },
+  WL: {
+    label:'Blondify Williamsburg',
+    stockColumn:'Blondify Williamsburg Stock'
+  },
+  BR: {
+    label:'Brunettify',
+    stockColumn:'Brunettify Stock'
+  }
+};
+
+const CATALOG_API_URL =
+  'https://script.google.com/macros/s/AKfycbzgpOJcV7bSHgZWHk8NRCP2yAdyzQp4wVnik1r-pbmUP2jByChQ7n8bO8yuB-CJTedV/exec';
+
+let catalog = [];
+let quoteItems = [];
+let currentLeaf = null;
+let widgetReady = false;
+let appStarted = false;
+
+const $ = id =>
+  document.getElementById(id);
+
+function clean(v) {
+  return String(v == null ? '' : v).trim();
+}
+
+function num(v) {
+  if (
+    v === null ||
+    v === undefined ||
+    v === ''
+  ) {
+    return null;
+  }
+
+  const n =
+    Number(
+      String(v)
+        .replace(/[$,%]/g,'')
+        .replace(/,/g,'')
+    );
+
+  return Number.isFinite(n)
+    ? n
+    : null;
+}
+
+function stockNum(v) {
+  const n = num(v);
+
+  return n == null
+    ? 0
+    : Math.max(0,Math.floor(n));
+}
+
+function money(n) {
+  return new Intl.NumberFormat(
+    'en-US',
+    {
+      style:'currency',
+      currency:'USD'
+    }
+  ).format(Number(n || 0));
+}
+
+function uniq(values) {
+  return [
+    ...new Set(
+      values
+        .map(clean)
+        .filter(Boolean)
+    )
+  ].sort(
+    (a,b) =>
+      a.localeCompare(
+        b,
+        undefined,
+        {numeric:true}
+      )
+  );
+}
+
+function optionize(
+  select,
+  values,
+  placeholder
+) {
+  select.innerHTML = '';
+
+  const p =
+    document.createElement('option');
+
+  p.value = '';
+  p.textContent = placeholder;
+
+  select.appendChild(p);
+
+  values.forEach(v => {
+    const o =
+      document.createElement('option');
+
+    o.value = v;
+    o.textContent = v;
+
+    select.appendChild(o);
+  });
+
+  select.disabled =
+    values.length === 0;
+}
+
+function matches(row,filters) {
+  return Object.entries(filters)
+    .every(([key,val]) => {
+      if (!val) {
+        return true;
+      }
+
+      return (
+        clean(row[key]) === clean(val)
+      );
+    });
+}
+
+function filtered(filters) {
+  return catalog.filter(
+    row => matches(row,filters)
+  );
+}
+
+function currentFilters(includeShade=true) {
+  const f = {
+    'Method':$('method').value,
+    'Brand — Collection — Texture':
+      $('product').value
+  };
+
+  if (
+    !$('styleWrap')
+      .classList
+      .contains('hidden')
+    &&
+    $('style').value
+  ) {
+    f['Extension Style'] =
+      $('style').value;
+  }
+
+  if (
+    !$('specialWrap')
+      .classList
+      .contains('hidden')
+    &&
+    $('special').value
+  ) {
+    f['H&C Special Batch'] =
+      $('special').value;
+  }
+
+  if ($('length').value) {
+    f['Length'] =
+      $('length').value;
+  }
+
+  if (
+    includeShade &&
+    $('shade').value
+  ) {
+    f['Shade'] =
+      $('shade').value;
+  }
+
+  return f;
+}
+
+function resetFrom(level) {
+  const order = [
+    'style',
+    'product',
+    'special',
+    'length',
+    'shade'
+  ];
+
+  const index =
+    order.indexOf(level);
+
+  order
+    .slice(index)
+    .forEach(id => {
+      if ($(id)) {
+        $(id).innerHTML = '';
+        $(id).disabled = true;
+      }
+    });
+
+  currentLeaf = null;
+
+  $('selectionMeta')
+    .classList
+    .add('hidden');
+
+  $('inventoryMeta')
+    .classList
+    .add('hidden');
+
+  $('stockStatus')
+    .classList
+    .add('hidden');
+
+  $('sourcingWrap')
+    .classList
+    .add('hidden');
+
+  $('conflict')
+    .classList
+    .add('hidden');
+
+  $('addBtn').disabled = true;
+}
+
+function loadMethods() {
+  optionize(
+    $('method'),
+    uniq(
+      catalog.map(
+        r => r['Method']
+      )
+    ),
+    'Select method…'
+  );
+}
+
+function onMethod() {
+  resetFrom('style');
+
+  const method =
+    $('method').value;
+
+  if (!method) {
+    $('styleWrap')
+      .classList
+      .add('hidden');
+    return;
+  }
+
+  const rows =
+    filtered({
+      'Method':method
+    });
+
+  const styles =
+    uniq(
+      rows.map(
+        r => r['Extension Style']
+      )
+    );
+
+  if (styles.length) {
+    $('styleWrap')
+      .classList
+      .remove('hidden');
+
+    optionize(
+      $('style'),
+      styles,
+      'Select extension style…'
+    );
+  } else {
+    $('styleWrap')
+      .classList
+      .add('hidden');
+
+    $('style').value = '';
+
+    loadProducts();
+  }
+}
+
+function onStyle() {
+  resetFrom('product');
+  loadProducts();
+}
+
+function loadProducts() {
+  const filters = {
+    'Method':$('method').value
+  };
+
+  if (
+    !$('styleWrap')
+      .classList
+      .contains('hidden')
+  ) {
+    if (!$('style').value) {
+      return;
+    }
+
+    filters['Extension Style'] =
+      $('style').value;
+  }
+
+  optionize(
+    $('product'),
+    uniq(
+      filtered(filters).map(
+        r =>
+          r[
+            'Brand — Collection — Texture'
+          ]
+      )
+    ),
+    'Select brand / collection / texture…'
+  );
+}
+
+function onProduct() {
+  resetFrom('special');
+
+  if (!$('product').value) {
+    return;
+  }
+
+  const rows =
+    filtered(
+      currentFilters(false)
+    );
+
+  const specials =
+    uniq(
+      rows.map(
+        r =>
+          r[
+            'H&C Special Batch'
+          ]
+      )
+    );
+
+  if (specials.length) {
+    $('specialWrap')
+      .classList
+      .remove('hidden');
+
+    optionize(
+      $('special'),
+      specials,
+      'Select special batch…'
+    );
+  } else {
+    $('specialWrap')
+      .classList
+      .add('hidden');
+
+    $('special').value = '';
+
+    loadLengths();
+  }
+}
+
+function onSpecial() {
+  resetFrom('length');
+  loadLengths();
+}
+
+function loadLengths() {
+  if (!$('product').value) {
+    return;
+  }
+
+  if (
+    !$('specialWrap')
+      .classList
+      .contains('hidden')
+    &&
+    !$('special').value
+  ) {
+    return;
+  }
+
+  optionize(
+    $('length'),
+    uniq(
+      filtered(
+        currentFilters(false)
+      ).map(
+        r => r['Length']
+      )
+    ),
+    'Select length…'
+  );
+}
+
+function onLength() {
+  resetFrom('shade');
+
+  if (!$('length').value) {
+    return;
+  }
+
+  optionize(
+    $('shade'),
+    uniq(
+      filtered(
+        currentFilters(false)
+      ).map(
+        r => r['Shade']
+      )
+    ),
+    'Select shade…'
+  );
+}
+
+function inventoryForRow(
+  row,
+  quantity
+) {
+  const selectedCode =
+    $('location').value;
+
+  const selected =
+    LOCATIONS[selectedCode] || null;
+
+  const qty =
+    Math.max(
+      1,
+      Math.floor(
+        Number(quantity || 1)
+      )
+    );
+
+  const stockByLocation = {};
+
+  Object.entries(LOCATIONS)
+    .forEach(
+      ([code,location]) => {
+        stockByLocation[code] =
+          stockNum(
+            row[
+              location.stockColumn
+            ]
+          );
+      }
+    );
+
+  const selectedAvailable =
+    selected
+      ? stockByLocation[selectedCode]
+      : 0;
+
+  const shortage =
+    selected
+      ? Math.max(
+          0,
+          qty - selectedAvailable
+        )
+      : qty;
+
+  const transferLocations =
+    Object.entries(LOCATIONS)
+      .filter(
+        ([code]) =>
+          code !== selectedCode
+      )
+      .map(
+        ([code,location]) => ({
+          code,
+          location:location.label,
+          stock:stockByLocation[code]
+        })
+      )
+      .filter(
+        x =>
+          shortage > 0
+          &&
+          x.stock >= shortage
+      );
+
+  return {
+    stockByLocation,
+    selectedCode,
+    selectedLocation:
+      selected ? selected.label : '',
+    selectedAvailable,
+    quantityNeeded:qty,
+    shortage,
+    needsSourcing:shortage,
+    transferAvailable:
+      transferLocations.length > 0,
+    transferLocations
+  };
+}
+
+function populateSourcing(
+  inventory
+) {
+  const select =
+    $('sourcingMethod');
+
+  const previous =
+    select.value;
+
+  select.innerHTML =
+    '<option value="">Select sourcing method…</option>';
+
+  if (
+    inventory.transferAvailable
+  ) {
+    const option =
+      document.createElement('option');
+
+    option.value = 'transfer';
+    option.textContent =
+      'Transfer from another salon';
+
+    select.appendChild(option);
+  }
+
+  [
+    [
+      'same_day',
+      'Same-Day Courier'
+    ],
+    [
+      'standard',
+      'Standard Shipping'
+    ],
+    [
+      'overnight',
+      'Overnight Shipping (+$50)'
+    ]
+  ].forEach(
+    ([value,label]) => {
+      const option =
+        document.createElement('option');
+
+      option.value = value;
+      option.textContent = label;
+
+      select.appendChild(option);
+    }
+  );
+
+  if (
+    [...select.options]
+      .some(
+        o => o.value === previous
+      )
+  ) {
+    select.value = previous;
+  }
+}
+
+function sourcingLabel(value) {
+  if (value === 'transfer') {
+    return 'Transfer from another salon';
+  }
+
+  if (value === 'same_day') {
+    return 'Same-Day Courier';
+  }
+
+  if (value === 'standard') {
+    return 'Standard Shipping';
+  }
+
+  if (value === 'overnight') {
+    return 'Overnight Shipping';
+  }
+
+  return '';
+}
+
+function updateTransferOptions() {
+  const transfer =
+    $('transferFrom');
+
+  transfer.innerHTML =
+    '<option value="">Select salon…</option>';
+
+  if (!currentLeaf) {
+    return;
+  }
+
+  const inventory =
+    inventoryForRow(
+      currentLeaf,
+      $('qty').value
+    );
+
+  inventory.transferLocations
+    .forEach(item => {
+      const option =
+        document.createElement('option');
+
+      option.value =
+        item.location;
+
+      option.textContent =
+        `${item.location} (${item.stock} in stock)`;
+
+      transfer.appendChild(option);
+    });
+}
+
+function updateSourcingUI() {
+  const method =
+    $('sourcingMethod').value;
+
+  $('transferFromWrap')
+    .classList
+    .toggle(
+      'hidden',
+      method !== 'transfer'
+    );
+
+  $('overnightNote')
+    .classList
+    .toggle(
+      'hidden',
+      method !== 'overnight'
+    );
+
+  if (method === 'transfer') {
+    updateTransferOptions();
+  }
+
+  validateAddButton();
+}
+
+function updateInventoryDisplay() {
+  if (!currentLeaf) {
+    return;
+  }
+
+  const inventory =
+    inventoryForRow(
+      currentLeaf,
+      $('qty').value
+    );
+
+  $('evStock').textContent =
+    inventory.stockByLocation.EV;
+
+  $('wlStock').textContent =
+    inventory.stockByLocation.WL;
+
+  $('brStock').textContent =
+    inventory.stockByLocation.BR;
+
+  $('selectedStock').textContent =
+    inventory.selectedCode
+      ? inventory.selectedAvailable
+      : 'Select location';
+
+  $('qtyNeeded').textContent =
+    inventory.quantityNeeded;
+
+  $('needsSourcing').textContent =
+    inventory.selectedCode
+      ? inventory.needsSourcing
+      : 'Select location';
+
+  $('inventoryMeta')
+    .classList
+    .remove('hidden');
+
+  const status =
+    $('stockStatus');
+
+  status.classList.remove(
+    'hidden',
+    'ok',
+    'warn',
+    'error'
+  );
+
+  if (!inventory.selectedCode) {
+    status.classList.add('warn');
+
+    status.textContent =
+      'Select an extension service location to check inventory.';
+
+    $('sourcingWrap')
+      .classList
+      .add('hidden');
+
+    validateAddButton();
+
+    return;
+  }
+
+  if (
+    inventory.needsSourcing === 0
+  ) {
+    status.classList.add('ok');
+
+    status.textContent =
+      `In stock at ${inventory.selectedLocation}.`;
+
+    $('sourcingWrap')
+      .classList
+      .add('hidden');
+
+    $('sourcingMethod').value = '';
+
+    validateAddButton();
+
+    return;
+  }
+
+  status.classList.add('warn');
+
+  status.textContent =
+    `${inventory.needsSourcing} item${inventory.needsSourcing === 1 ? '' : 's'} need sourcing.`;
+
+  populateSourcing(inventory);
+
+  $('sourcingWrap')
+    .classList
+    .remove('hidden');
+
+  validateAddButton();
+}
+
+function validateAddButton() {
+  if (
+    !currentLeaf
+    ||
+    !$('location').value
+  ) {
+    $('addBtn').disabled = true;
+    return;
+  }
+
+  if (
+    num(
+      currentLeaf['Client Cost']
+    ) == null
+  ) {
+    $('addBtn').disabled = true;
+    return;
+  }
+
+  const inventory =
+    inventoryForRow(
+      currentLeaf,
+      $('qty').value
+    );
+
+  if (
+    inventory.needsSourcing === 0
+  ) {
+    $('addBtn').disabled = false;
+    return;
+  }
+
+  const method =
+    $('sourcingMethod').value;
+
+  if (!method) {
+    $('addBtn').disabled = true;
+    return;
+  }
+
+  if (
+    method === 'transfer'
+    &&
+    !$('transferFrom').value
+  ) {
+    $('addBtn').disabled = true;
+    return;
+  }
+
+  $('addBtn').disabled = false;
+}
+
+function resolveLeaf() {
+  currentLeaf = null;
+
+  $('selectionMeta')
+    .classList
+    .add('hidden');
+
+  $('inventoryMeta')
+    .classList
+    .add('hidden');
+
+  $('conflict')
+    .classList
+    .add('hidden');
+
+  $('addBtn').disabled = true;
+
+  if (!$('shade').value) {
+    return;
+  }
+
+  const rows =
+    filtered(
+      currentFilters(true)
+    );
+
+  if (!rows.length) {
+    return;
+  }
+
+  const variants =
+    new Map();
+
+  rows.forEach(r => {
+    const key = [
+      clean(r['SKU']),
+      clean(r['Size']),
+      clean(r['Grams']),
+      clean(r['Wholesale Cost']),
+      clean(r['Client Cost'])
+    ].join('||');
+
+    if (!variants.has(key)) {
+      variants.set(key,r);
+    }
+  });
+
+  if (variants.size > 1) {
+    $('conflict').textContent =
+      'This selection has more than one product record in the spreadsheet. Please correct the database before quoting it.';
+
+    $('conflict')
+      .classList
+      .remove('hidden');
+
+    return;
+  }
+
+  currentLeaf =
+    [...variants.values()][0];
+
+  $('packageSize').textContent =
+    clean(
+      currentLeaf['Size']
+    ) || '—';
+
+  $('unitGrams').textContent =
+    num(
+      currentLeaf['Grams']
+    ) == null
+      ? '—'
+      : `${num(
+          currentLeaf['Grams']
+        )}g`;
+
+  $('unitCost').textContent =
+    num(
+      currentLeaf['Client Cost']
+    ) == null
+      ? '—'
+      : money(
+          num(
+            currentLeaf['Client Cost']
+          )
+        );
+
+  $('selectionMeta')
+    .classList
+    .remove('hidden');
+
+  updateInventoryDisplay();
+}
+
+function parseSizeMetrics(sizeText) {
+  const raw =
+    clean(sizeText);
+
+  if (
+    !raw
+    ||
+    /^not specified$/i.test(raw)
+    ||
+    /^full head application$/i.test(raw)
+  ) {
+    return [];
+  }
+
+  const normalized =
+    raw.replace(/[“”]/g,'"');
+
+  const metrics = [];
+  let match;
+
+  match =
+    normalized.match(
+      /^(\d+(?:\.\d+)?)\s+Tabs?\s*\((\d+(?:\.\d+)?)\s+Sandwich(?:es)?\)/i
+    );
+
+  if (match) {
+    metrics.push({
+      key:'Tabs',
+      label:'Tabs',
+      amount:Number(match[1])
+    });
+
+    metrics.push({
+      key:'Sandwiches',
+      label:'Sandwiches',
+      amount:Number(match[2])
+    });
+
+    return metrics;
+  }
+
+  match =
+    normalized.match(
+      /^(\d+(?:\.\d+)?)\s+Bonds?/i
+    );
+
+  if (match) {
+    metrics.push({
+      key:'Bonds',
+      label:'Bonds',
+      amount:Number(match[1])
+    });
+
+    return metrics;
+  }
+
+  match =
+    normalized.match(
+      /^(\d+(?:\.\d+)?)\s*-\s*([\d.]+)"\s+Wide\s+Wefts?/i
+    );
+
+  if (match) {
+    const width =
+      match[2];
+
+    metrics.push({
+      key:`${width}" Wide Wefts`,
+      label:`${width}" Wide Wefts`,
+      amount:Number(match[1])
+    });
+
+    return metrics;
+  }
+
+  match =
+    normalized.match(
+      /^(\d+(?:\.\d+)?)\s+Wefts?/i
+    );
+
+  if (match) {
+    metrics.push({
+      key:'Wefts',
+      label:'Wefts',
+      amount:Number(match[1])
+    });
+
+    return metrics;
+  }
+
+  return [];
+}
+
+function calculateSizeTotals() {
+  const totals =
+    new Map();
+
+  quoteItems.forEach(item => {
+    const qty =
+      Number(item.quantity || 0);
+
+    parseSizeMetrics(item.size)
+      .forEach(metric => {
+        if (!totals.has(metric.key)) {
+          totals.set(
+            metric.key,
+            {
+              label:metric.label,
+              amount:0
+            }
+          );
+        }
+
+        totals
+          .get(metric.key)
+          .amount +=
+            Number(metric.amount || 0)
+            *
+            qty;
+      });
+  });
+
+  return [...totals.values()];
+}
+
+function formatCount(n) {
+  const value =
+    Number(n || 0);
+
+  return Number.isInteger(value)
+    ? String(value)
+    : String(
+        Math.round(
+          value * 100
+        ) / 100
+      );
+}
+
+function totalHairDisplay() {
+  const totals =
+    calculateSizeTotals();
+
+  if (!totals.length) {
+    return '—';
+  }
+
+  return totals
+    .map(
+      t =>
+        `${formatCount(t.amount)} ${t.label}`
+    )
+    .join(' · ');
+}
+
+function quoteHasOvernight() {
+  return quoteItems.some(
+    item =>
+      item.sourcingMethod ===
+      'overnight'
+  );
+}
+
+function calculateTotals() {
+  const totals =
+    quoteItems.reduce(
+      (acc,item) => {
+        acc.totalGrams +=
+          Number(
+            item.totalGrams || 0
+          );
+
+        acc.totalWholesale +=
+          Number(
+            item.wholesaleTotal || 0
+          );
+
+        acc.hairProductCost +=
+          Number(
+            item.clientCostTotal || 0
+          );
+
+        acc.totalQuantity +=
+          Number(
+            item.quantity || 0
+          );
+
+        return acc;
+      },
+      {
+        totalGrams:0,
+        totalWholesale:0,
+        hairProductCost:0,
+        totalQuantity:0
+      }
+    );
+
+  totals.overnightShippingFee =
+    quoteHasOvernight()
+      ? 50
+      : 0;
+
+  totals.totalClientCost =
+    totals.hairProductCost
+    +
+    totals.overnightShippingFee;
+
+  return totals;
+}
+
+function addItem() {
+  if (!currentLeaf) {
+    return;
+  }
+
+  const quantity =
+    Math.max(
+      1,
+      Math.floor(
+        num(
+          $('qty').value
+        ) || 1
+      )
+    );
+
+  const inventory =
+    inventoryForRow(
+      currentLeaf,
+      quantity
+    );
+
+  const sourcingMethod =
+    inventory.needsSourcing > 0
+      ? $('sourcingMethod').value
+      : '';
+
+  const transferFrom =
+    sourcingMethod === 'transfer'
+      ? $('transferFrom').value
+      : '';
+
+  if (
+    inventory.needsSourcing > 0
+    &&
+    !sourcingMethod
+  ) {
+    return;
+  }
+
+  const gramsPerItem =
+    num(
+      currentLeaf['Grams']
+    ) || 0;
+
+  const clientCostPerItem =
+    num(
+      currentLeaf['Client Cost']
+    ) || 0;
+
+  const wholesalePerItem =
+    num(
+      currentLeaf['Wholesale Cost']
+    ) || 0;
+
+  quoteItems.push({
+    sku:
+      clean(
+        currentLeaf['SKU']
+      ),
+
+    product:
+      clean(
+        currentLeaf[
+          'Brand — Collection — Texture'
+        ]
+      ),
+
+    specialBatch:
+      clean(
+        currentLeaf[
+          'H&C Special Batch'
+        ]
+      ),
+
+    length:
+      clean(
+        currentLeaf['Length']
+      ),
+
+    shade:
+      clean(
+        currentLeaf['Shade']
+      ),
+
+    size:
+      clean(
+        currentLeaf['Size']
+      ),
+
+    quantity,
+
+    gramsPerItem,
+
+    totalGrams:
+      gramsPerItem * quantity,
+
+    wholesalePerItem,
+
+    wholesaleTotal:
+      wholesalePerItem * quantity,
+
+    clientCostPerItem,
+
+    clientCostTotal:
+      clientCostPerItem * quantity,
+
+    location:
+      inventory.selectedLocation,
+
+    inventory,
+
+    sourcingMethod,
+
+    sourcingMethodLabel:
+      sourcingLabel(
+        sourcingMethod
+      ),
+
+    transferFrom,
+
+    method:
+      clean(
+        currentLeaf['Method']
+      ),
+
+    extensionStyle:
+      clean(
+        currentLeaf[
+          'Extension Style'
+        ]
+      )
+  });
+
+  renderQuote();
+  sendLiveData();
+  clearSelection(false);
+}
+
+function removeItem(index) {
+  quoteItems.splice(
+    index,
+    1
+  );
+
+  renderQuote();
+  sendLiveData();
+}
+
+function humanDescription(item) {
+  const special =
+    item.specialBatch
+      ? ` · ${item.specialBatch}`
+      : '';
+
+  return (
+    `${item.product}${special}`
+    +
+    ` · ${item.length}`
+    +
+    ` · ${item.shade}`
+    +
+    ` · Qty ${item.quantity}`
+  );
+}
+
+function renderQuote() {
+  const wrapper =
+    $('items');
+
+  if (!quoteItems.length) {
+    wrapper.innerHTML =
+      '<div class="loading">No hair added yet.</div>';
+  } else {
+    wrapper.innerHTML =
+      quoteItems
+        .map(
+          (item,index) => {
+            const sourcing =
+              item.sourcingMethod
+                ? (
+                    `<br>Sourcing: ${
+                      escapeHtml(
+                        item.sourcingMethodLabel
+                      )
+                    }`
+                    +
+                    (
+                      item.transferFrom
+                        ? ` from ${escapeHtml(item.transferFrom)}`
+                        : ''
+                    )
+                  )
+                : '<br>In Stock';
+
+            return `
+<div class="item">
+
+<div>
+
+<div class="item-title">
+${escapeHtml(
+  humanDescription(item)
+)}
+</div>
+
+<div class="item-sub">
+
+${escapeHtml(
+  item.size || ''
+)}
+
+${item.size ? ' · ' : ''}
+
+${item.totalGrams}g
+
+·
+
+${money(
+  item.clientCostTotal
+)}
+
+${sourcing}
+
+</div>
+
+</div>
+
+<button
+  type="button"
+  class="remove"
+  onclick="removeItem(${index})">
+Remove
+</button>
+
+</div>
+`;
+          }
+        )
+        .join('');
+  }
+
+  const totals =
+    calculateTotals();
+
+  $('totalHair').textContent =
+    totalHairDisplay();
+
+  $('totalGrams').textContent =
+    `${totals.totalGrams}g`;
+
+  $('totalCost').textContent =
+    money(
+      totals.totalClientCost
+    );
+
+  if (
+    totals.overnightShippingFee
+    > 0
+  ) {
+    $('shippingFeeNote')
+      .textContent =
+        'Includes $50 overnight shipping';
+
+    $('shippingFeeNote')
+      .classList
+      .remove('hidden');
+  } else {
+    $('shippingFeeNote')
+      .classList
+      .add('hidden');
+  }
+
+  resize();
+}
+
+function payload() {
+  const totals =
+    calculateTotals();
+
+  const sizeTotals =
+    calculateSizeTotals();
+
+  const sourcingItems =
+    quoteItems.filter(
+      item =>
+        item.inventory
+        &&
+        item.inventory
+          .needsSourcing > 0
+    );
+
+  return {
+    version:9,
+
+    items:quoteItems,
+
+    extensionDescriptions:
+      quoteItems.map(
+        item =>
+          humanDescription(item)
+      ),
+
+    totalHair:
+      totalHairDisplay(),
+
+    totalGrams:
+      totals.totalGrams,
+
+    hairProductCost:
+      totals.hairProductCost,
+
+    overnightShippingFee:
+      totals.overnightShippingFee,
+
+    hairCost:
+      totals.totalClientCost,
+
+    sizeTotals,
+
+    sourcingNeeded:
+      sourcingItems.length > 0,
+
+    transferRequired:
+      sourcingItems.some(
+        item =>
+          item.sourcingMethod ===
+          'transfer'
+      ),
+
+    sameDayCourierRequired:
+      sourcingItems.some(
+        item =>
+          item.sourcingMethod ===
+          'same_day'
+      ),
+
+    standardShippingRequired:
+      sourcingItems.some(
+        item =>
+          item.sourcingMethod ===
+          'standard'
+      ),
+
+    overnightShippingRequired:
+      sourcingItems.some(
+        item =>
+          item.sourcingMethod ===
+          'overnight'
+      ),
+
+    sourcingItems:
+      sourcingItems.map(
+        item => ({
+          product:item.product,
+          specialBatch:
+            item.specialBatch,
+          length:item.length,
+          shade:item.shade,
+          quantityNeeded:
+            item.quantity,
+          stockAvailable:
+            item.inventory
+              .selectedAvailable,
+          quantityToSource:
+            item.inventory
+              .needsSourcing,
+          salon:item.location,
+          sourcingMethod:
+            item.sourcingMethodLabel,
+          transferFrom:
+            item.transferFrom,
+          sku:item.sku
+        })
+      ),
+
+    quoteSummary:
+      quoteItems
+        .map(
+          (item,index) =>
+            `Hair Extension #${index + 1}: ${humanDescription(item)}`
+        )
+        .join('\n'),
+
+    sourcingSummary:
+      sourcingItems
+        .map(
+          item => {
+            return (
+              `${item.product}`
+              +
+              (
+                item.specialBatch
+                  ? ` · ${item.specialBatch}`
+                  : ''
+              )
+              +
+              ` · ${item.length}`
+              +
+              ` · ${item.shade}`
+              +
+              ` · Qty to source ${item.inventory.needsSourcing}`
+              +
+              ` · ${item.sourcingMethodLabel}`
+              +
+              (
+                item.transferFrom
+                  ? ` from ${item.transferFrom}`
+                  : ''
+              )
+            );
+          }
+        )
+        .join('\n')
+  };
+}
+
+function clearSelection(
+  clearEverything=true
+) {
+  if (clearEverything) {
+    $('method').value = '';
+    onMethod();
+  } else {
+    $('shade').value = '';
+    $('qty').value = 1;
+    $('sourcingMethod').value = '';
+    $('transferFrom').value = '';
+    currentLeaf = null;
+
+    $('selectionMeta')
+      .classList
+      .add('hidden');
+
+    $('inventoryMeta')
+      .classList
+      .add('hidden');
+
+    $('stockStatus')
+      .classList
+      .add('hidden');
+
+    $('sourcingWrap')
+      .classList
+      .add('hidden');
+
+    $('addBtn').disabled =
+      true;
+  }
+}
+
+function escapeHtml(str) {
+  return String(
+    str || ''
+  )
+  .replace(
+    /[&<>"']/g,
+    c => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    })[c]
+  );
+}
+
+function sendLiveData() {
+  if (
+    !widgetReady
+    ||
+    typeof JFCustomWidget ===
+    'undefined'
+  ) {
+    return;
+  }
+
+  JFCustomWidget.sendData({
+    value:
+      JSON.stringify(
+        payload()
+      )
+  });
+}
+
+function restoreValue(value) {
+  if (!value) {
+    return;
+  }
+
+  try {
+    const parsed =
+      JSON.parse(value);
+
+    if (
+      Array.isArray(
+        parsed.items
+      )
+    ) {
+      quoteItems =
+        parsed.items;
+
+      renderQuote();
+    }
+  } catch(error) {}
+}
+
+function resize() {
+  if (
+    typeof JFCustomWidget ===
+    'undefined'
+  ) {
+    return;
+  }
+
+  setTimeout(
+    () => {
+      JFCustomWidget
+        .requestFrameResize({
+          height:
+            document
+              .body
+              .scrollHeight
+            +
+            10
+        });
+    },
+    50
+  );
+}
+
+$('method')
+  .addEventListener(
+    'change',
+    onMethod
+  );
+
+$('style')
+  .addEventListener(
+    'change',
+    onStyle
+  );
+
+$('product')
+  .addEventListener(
+    'change',
+    onProduct
+  );
+
+$('special')
+  .addEventListener(
+    'change',
+    onSpecial
+  );
+
+$('length')
+  .addEventListener(
+    'change',
+    onLength
+  );
+
+$('shade')
+  .addEventListener(
+    'change',
+    resolveLeaf
+  );
+
+$('qty')
+  .addEventListener(
+    'input',
+    updateInventoryDisplay
+  );
+
+$('location')
+  .addEventListener(
+    'change',
+    updateInventoryDisplay
+  );
+
+$('sourcingMethod')
+  .addEventListener(
+    'change',
+    updateSourcingUI
+  );
+
+$('transferFrom')
+  .addEventListener(
+    'change',
+    validateAddButton
+  );
+
+$('addBtn')
+  .addEventListener(
+    'click',
+    addItem
+  );
+
+$('clearSelectionBtn')
+  .addEventListener(
+    'click',
+    () =>
+      clearSelection(true)
+  );
+
+function startWidget(
+  existingValue=''
+) {
+  loadCatalogJsonp()
+    .then(rows => {
+
+      catalog =
+        rows || [];
+
+      $('loading')
+        .classList
+        .add('hidden');
+
+      $('app')
+        .classList
+        .remove('hidden');
+
+      loadMethods();
+
+      restoreValue(
+        existingValue
+      );
+
+      resize();
+
+    })
+    .catch(error => {
+
+      $('loading')
+        .textContent =
+          'Could not load catalog: '
+          +
+          (
+            error &&
+            error.message
+              ? error.message
+              : error
+          );
+
+      resize();
+
+    });
+}
+
+
+/*
+  Loads the live Google Sheet catalog from
+  the Apps Script JSONP endpoint.
+*/
+function loadCatalogJsonp() {
+
+  return new Promise(
+    (resolve,reject) => {
+
+      const callbackName =
+        '__extensionCatalogCallback_'
+        +
+        Date.now()
+        +
+        '_'
+        +
+        Math.floor(
+          Math.random() * 1000000
+        );
+
+      const script =
+        document.createElement(
+          'script'
+        );
+
+      let timeoutId = null;
+
+      function cleanup() {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        if (script.parentNode) {
+          script.parentNode
+            .removeChild(script);
+        }
+
+        try {
+          delete window[
+            callbackName
+          ];
+        } catch(error) {
+          window[
+            callbackName
+          ] = undefined;
+        }
+      }
+
+      window[
+        callbackName
+      ] =
+        function(response) {
+
+          cleanup();
+
+          if (
+            !response
+            ||
+            response.ok !== true
+          ) {
+            reject(
+              new Error(
+                response &&
+                response.error
+                  ? response.error
+                  : 'Catalog API returned an invalid response.'
+              )
+            );
+
+            return;
+          }
+
+          resolve(
+            Array.isArray(
+              response.catalog
+            )
+              ? response.catalog
+              : []
+          );
+        };
+
+      script.onerror =
+        function() {
+          cleanup();
+
+          reject(
+            new Error(
+              'Could not reach the catalog API.'
+            )
+          );
+        };
+
+      script.src =
+        CATALOG_API_URL
+        +
+        '?mode=catalog&callback='
+        +
+        encodeURIComponent(
+          callbackName
+        )
+        +
+        '&_='
+        +
+        Date.now();
+
+      document.head
+        .appendChild(script);
+
+      timeoutId =
+        setTimeout(
+          function() {
+            cleanup();
+
+            reject(
+              new Error(
+                'Catalog request timed out.'
+              )
+            );
+          },
+          20000
+        );
+
+    }
+  );
+}
+
+function bootWidget(
+  existingValue=''
+) {
+  if (appStarted) {
+    return;
+  }
+
+  appStarted = true;
+
+  startWidget(existingValue);
+}
+
+if (
+  typeof JFCustomWidget !==
+  'undefined'
+) {
+
+  JFCustomWidget.subscribe(
+    'ready',
+    function(data) {
+
+      widgetReady = true;
+
+      bootWidget(
+        data && data.value
+          ? data.value
+          : ''
+      );
+
+      JFCustomWidget.subscribe(
+        'submit',
+        function() {
+
+          const valid =
+            quoteItems.length > 0;
+
+          JFCustomWidget.sendSubmit({
+            valid,
+            value:
+              JSON.stringify(
+                payload()
+              )
+          });
+        }
+      );
+    }
+  );
+
+  setTimeout(
+    function() {
+      if (!appStarted) {
+        bootWidget('');
+      }
+    },
+    1000
+  );
+
+} else {
+
+  bootWidget('');
+
+}
+
+</script>
+
+</body>
+
+</html>
