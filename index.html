@@ -201,6 +201,12 @@ button{
   text-underline-offset:5px;
   margin-bottom:18px;
 }
+
+textarea{
+  line-height:1.7;
+  padding-top:14px;
+  padding-bottom:14px;
+}
 </style>
 </head>
 
@@ -1339,7 +1345,7 @@ function hairDescription(item){
     `Hair Cost: ${money(item.clientCostTotal)}`
   ]
     .filter(Boolean)
-    .join('\n');
+    .join('\n\n');
 }
 
 function escapeHtml(str){
@@ -2007,9 +2013,6 @@ function servicePayload(){
     original Jotform hair fields.
   */
   const serviceSummary = [
-    hairSource === 'new' && $('neededByDate').value
-      ? `Hair Needed By: ${$('neededByDate').value}`
-      : '',
     outsideSummary,
     pushupSummary ? `Push-Up:\n${pushupSummary}` : '',
     removalSummary ? `Removal:\n${removalSummary}` : '',
@@ -2030,7 +2033,7 @@ function servicePayload(){
     );
 
   return {
-    version:14,
+    version:15,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2063,11 +2066,12 @@ function servicePayload(){
           `Qty to Order: ${item.inventory.needsSourcing}`,
           `Amount: ${item.size || ''} · ${item.totalGrams}g · Wholesale ${money(item.wholesaleTotal || 0)}`,
           `Shipping: ${shippingText}`,
-          sourceLocation ? `Location: ${sourceLocation}` : ''
+          sourceLocation ? `Location: ${sourceLocation}` : '',
+          $('neededByDate').value ? `Hair Needed By: ${$('neededByDate').value}` : ''
         ]
           .filter(Boolean)
-          .join('\n');
-      }).join('\n\n')
+          .join('\n\n');
+      }).join('\n\n\n')
     },
 
     outsideVendor:{
