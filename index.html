@@ -32,8 +32,8 @@ body{
   padding:16px;
 }
 .section{
-  margin-top:18px;
-  padding-top:18px;
+  margin-top:40px;
+  padding-top:36px;
   border-top:1px solid var(--line);
 }
 .section:first-child{
@@ -42,9 +42,11 @@ body{
   border-top:0;
 }
 .section-title{
-  margin:0 0 12px;
-  font-size:17px;
-  font-weight:750;
+  margin:0 0 18px;
+  font-size:22px;
+  font-weight:800;
+  text-decoration:underline;
+  text-underline-offset:5px;
 }
 .section-note{
   margin:-5px 0 12px;
@@ -189,6 +191,15 @@ button{
 }
 @media(max-width:560px){
   .grid,.meta,.totals{grid-template-columns:1fr}
+}
+
+.section > h2,
+.section > h3{
+  font-size:22px;
+  font-weight:800;
+  text-decoration:underline;
+  text-underline-offset:5px;
+  margin-bottom:18px;
 }
 </style>
 </head>
@@ -1316,8 +1327,19 @@ function removeHairItem(index){
 }
 
 function hairDescription(item){
-  const special = item.specialBatch ? ` · ${item.specialBatch}` : '';
-  return `${item.product}${special} · ${item.length} · ${item.shade} · Qty ${item.quantity}`;
+  const special =
+    item.specialBatch
+      ? ` · ${item.specialBatch}`
+      : '';
+
+  return [
+    `${item.product}${special} · ${item.length} · ${item.shade}`,
+    `Qty: ${item.quantity}`,
+    `Amount: ${item.size || ''} · ${item.totalGrams}g`,
+    `Hair Cost: ${money(item.clientCostTotal)}`
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function escapeHtml(str){
@@ -1947,20 +1969,8 @@ function servicePayload(){
   const hairDetailsSummary =
     hairItems
       .map(
-        item => {
-          const sizeText =
-            item.size || '';
-
-          return (
-            `${hairDescription(item)}`
-            +
-            ` · ${sizeText}`
-            +
-            ` · ${item.totalGrams}g`
-            +
-            ` · Hair Cost ${money(item.clientCostTotal)}`
-          );
-        }
+        item =>
+          hairDescription(item)
       )
       .join('\n');
 
@@ -1997,9 +2007,6 @@ function servicePayload(){
     original Jotform hair fields.
   */
   const serviceSummary = [
-    hairSource === 'new' && hairDetailsSummary
-      ? `Hair:\n${hairDetailsSummary}`
-      : '',
     hairSource === 'new' && $('neededByDate').value
       ? `Hair Needed By: ${$('neededByDate').value}`
       : '',
@@ -2023,7 +2030,7 @@ function servicePayload(){
     );
 
   return {
-    version:10,
+    version:14,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2046,28 +2053,21 @@ function servicePayload(){
         const sourceLocation =
           item.location || '';
 
-        return (
-          `${item.product}`
+        const shippingText =
+          `${item.sourcingMethodLabel}`
           +
-          ` · ${item.length}`
-          +
-          ` · ${item.shade}`
-          +
-          ` · ${item.size || ''}`
-          +
-          ` · ${item.totalGrams}g`
-          +
-          ` · Wholesale ${money(item.wholesaleTotal || 0)}`
-          +
-          (sourceLocation ? ` · Location ${sourceLocation}` : '')
-          +
-          ` · Qty to source ${item.inventory.needsSourcing}`
-          +
-          ` · ${item.sourcingMethodLabel}`
-          +
-          (item.transferFrom ? ` from ${item.transferFrom}` : '')
-        );
-      }).join('\n')
+          (item.transferFrom ? ` from ${item.transferFrom}` : '');
+
+        return [
+          `${item.product} · ${item.length} · ${item.shade}`,
+          `Qty to Order: ${item.inventory.needsSourcing}`,
+          `Amount: ${item.size || ''} · ${item.totalGrams}g · Wholesale ${money(item.wholesaleTotal || 0)}`,
+          `Shipping: ${shippingText}`,
+          sourceLocation ? `Location: ${sourceLocation}` : ''
+        ]
+          .filter(Boolean)
+          .join('\n');
+      }).join('\n\n')
     },
 
     outsideVendor:{
