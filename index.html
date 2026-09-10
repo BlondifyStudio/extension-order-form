@@ -388,12 +388,8 @@ Transfer From
 </div>
 
 <div
-  id="overnightNote"
+  id="shippingMethodNote"
   class="status warn hidden">
-
-Overnight shipping adds
-<strong>$50 once per quote</strong>.
-
 </div>
 
 </div>
@@ -428,33 +424,69 @@ No hair added yet.
 <div class="totals">
 
 <div>
-<div class="total-label">Total Hair</div>
-<div class="total-value" id="totalHair">—</div>
+<div class="total-label">
+Total Hair
+</div>
+<div
+  class="total-value"
+  id="totalHair">
+—
+</div>
 </div>
 
 <div>
-<div class="total-label">Total Grams</div>
-<div class="total-value" id="totalGrams">0g</div>
+<div class="total-label">
+Total Grams
+</div>
+<div
+  class="total-value"
+  id="totalGrams">
+0g
+</div>
 </div>
 
 <div>
-<div class="total-label">Hair Subtotal</div>
-<div class="total-value" id="hairSubtotal">$0.00</div>
+<div class="total-label">
+Hair Subtotal
+</div>
+<div
+  class="total-value"
+  id="hairSubtotal">
+$0.00
+</div>
 </div>
 
 <div>
-<div class="total-label">Sales Tax (8.875%)</div>
-<div class="total-value" id="salesTax">$0.00</div>
+<div class="total-label">
+Sales Tax
+</div>
+<div
+  class="total-value"
+  id="salesTax">
+$0.00
+</div>
 </div>
 
 <div>
-<div class="total-label">Overnight Shipping</div>
-<div class="total-value" id="overnightShipping">$0.00</div>
+<div class="total-label">
+Shipping / Courier
+</div>
+<div
+  class="total-value"
+  id="shippingFee">
+$0.00
+</div>
 </div>
 
 <div>
-<div class="total-label">Grand Total</div>
-<div class="total-value" id="totalCost">$0.00</div>
+<div class="total-label">
+Extension Total
+</div>
+<div
+  class="total-value"
+  id="totalCost">
+$0.00
+</div>
 </div>
 
 </div>
@@ -492,8 +524,6 @@ const EXTENSION_CACHE_TIME_KEY =
 
 const EXTENSION_BROWSER_CACHE_MAX_AGE =
   24 * 60 * 60 * 1000;
-
-const SALES_TAX_RATE = 0.08875;
 
 let catalog = [];
 let quoteItems = [];
@@ -1174,6 +1204,147 @@ function inventoryForRow(
 }
 
 
+function vendorForRow(row) {
+
+  const text =
+    clean(
+      row &&
+      row['Brand — Collection — Texture']
+    ).toLowerCase();
+
+  if (
+    text.includes('bellami')
+  ) {
+    return 'Bellami';
+  }
+
+  if (
+    text.includes('covet')
+    ||
+    text.includes('mane')
+  ) {
+    return 'Covet & Mane';
+  }
+
+  if (
+    text.includes('compound')
+    ||
+    text.includes('hair &')
+  ) {
+    return 'Hair & Compounds';
+  }
+
+  return '';
+}
+
+
+function shippingOptionsForVendor(
+  vendor
+) {
+
+  if (
+    vendor ===
+      'Hair & Compounds'
+  ) {
+    return [
+      {
+        value:'hc_ground',
+        label:'Ground Shipping — $12',
+        fee:12
+      },
+      {
+        value:'hc_2day',
+        label:'2-Day Shipping — $17',
+        fee:17
+      },
+      {
+        value:'hc_nextday',
+        label:'Next-Day Shipping — $56',
+        fee:56
+      }
+    ];
+  }
+
+  if (
+    vendor ===
+      'Covet & Mane'
+  ) {
+    return [
+      {
+        value:'cm_ground',
+        label:'Standard Shipping — Free',
+        fee:0
+      },
+      {
+        value:'cm_2day',
+        label:'2-Day Shipping — $30',
+        fee:30
+      },
+      {
+        value:'cm_nextday',
+        label:'Next-Day Shipping — $36',
+        fee:36
+      }
+    ];
+  }
+
+  if (
+    vendor ===
+      'Bellami'
+  ) {
+    return [
+      {
+        value:'bellami_2day',
+        label:'2-Day Shipping — Free',
+        fee:0
+      },
+      {
+        value:'bellami_same_day',
+        label:'Same-Day Courier — $20',
+        fee:20
+      }
+    ];
+  }
+
+  return [
+    {
+      value:'standard',
+      label:'Standard Shipping',
+      fee:0
+    }
+  ];
+}
+
+
+function shippingFeeForMethod(
+  value
+) {
+
+  const vendor =
+    currentLeaf
+      ? vendorForRow(
+          currentLeaf
+        )
+      : '';
+
+  const match =
+    shippingOptionsForVendor(
+      vendor
+    )
+    .find(
+      option =>
+        option.value ===
+          value
+    );
+
+  return match
+    ? Number(
+        match.fee || 0
+      )
+    : 0;
+}
+
+
 function populateSourcing(
   inventory
 ) {
@@ -1208,22 +1379,18 @@ function populateSourcing(
     );
   }
 
-  [
-    [
-      'same_day',
-      'Same-Day Courier'
-    ],
-    [
-      'standard',
-      'Standard Shipping'
-    ],
-    [
-      'overnight',
-      'Overnight Shipping (+$50)'
-    ]
-  ]
+  const vendor =
+    currentLeaf
+      ? vendorForRow(
+          currentLeaf
+        )
+      : '';
+
+  shippingOptionsForVendor(
+    vendor
+  )
   .forEach(
-    ([value,label]) => {
+    item => {
 
       const option =
         document.createElement(
@@ -1231,10 +1398,15 @@ function populateSourcing(
         );
 
       option.value =
-        value;
+        item.value;
 
       option.textContent =
-        label;
+        item.label;
+
+      option.dataset.fee =
+        String(
+          item.fee || 0
+        );
 
       select.appendChild(
         option
@@ -1270,30 +1442,31 @@ function sourcingLabel(
     return 'Transfer from another salon';
   }
 
-  if (
-    value ===
-      'same_day'
-  ) {
-    return 'Same-Day Courier';
-  }
+  const vendor =
+    currentLeaf
+      ? vendorForRow(
+          currentLeaf
+        )
+      : '';
+
+  const match =
+    shippingOptionsForVendor(
+      vendor
+    )
+    .find(
+      option =>
+        option.value ===
+          value
+    );
 
   if (
-    value ===
-      'standard'
+    match
   ) {
-    return 'Standard Shipping';
-  }
-
-  if (
-    value ===
-      'overnight'
-  ) {
-    return 'Overnight Shipping';
+    return match.label;
   }
 
   return '';
 }
-
 
 function updateTransferOptions() {
 
@@ -1354,13 +1527,46 @@ function updateSourcingUI() {
         'transfer'
     );
 
-  $('overnightNote')
-    .classList
-    .toggle(
-      'hidden',
+  const note =
+    $('shippingMethodNote');
+
+  if (
+    note
+  ) {
+
+    if (
+      method
+      &&
       method !==
-        'overnight'
-    );
+        'transfer'
+    ) {
+
+      const selected =
+        $('sourcingMethod')
+          .options[
+            $('sourcingMethod')
+              .selectedIndex
+          ];
+
+      note.textContent =
+        selected
+          ? selected.textContent
+          : '';
+
+      note.classList
+        .remove('hidden');
+
+    }
+    else {
+
+      note.classList
+        .add('hidden');
+
+      note.textContent =
+        '';
+
+    }
+  }
 
   if (
     method ===
@@ -1375,7 +1581,6 @@ function updateSourcingUI() {
 
   resize();
 }
-
 
 function updateInventoryDisplay() {
 
@@ -1947,18 +2152,6 @@ function totalHairDisplay() {
 }
 
 
-function quoteHasOvernight() {
-
-  return quoteItems
-    .some(
-      item =>
-        item
-          .sourcingMethod ===
-          'overnight'
-    );
-}
-
-
 function calculateTotals() {
 
   const totals =
@@ -2000,36 +2193,47 @@ function calculateTotals() {
       }
     );
 
-  totals
-    .overnightShippingFee =
-      quoteHasOvernight()
-        ? 50
-        : 0;
-
-  totals
-    .salesTax =
-      Math.round(
+  totals.salesTax =
+    Math.round(
+      (
         totals.hairProductCost *
-        SALES_TAX_RATE *
-        100
-      ) / 100;
+        0.08875
+      ) *
+      100
+    ) /
+    100;
 
-  totals
-    .totalClientCost =
-      Math.round(
-        (
-          totals.hairProductCost
-          +
-          totals.salesTax
-          +
-          totals.overnightShippingFee
-        ) *
-        100
-      ) / 100;
+  const shippingFees =
+    quoteItems
+      .map(
+        item =>
+          Number(
+            item.shippingFee || 0
+          )
+      );
+
+  totals.shippingFee =
+    shippingFees.length
+      ? Math.max(
+          ...shippingFees
+        )
+      : 0;
+
+  totals.totalClientCost =
+    Math.round(
+      (
+        totals.hairProductCost
+        +
+        totals.salesTax
+        +
+        totals.shippingFee
+      ) *
+      100
+    ) /
+    100;
 
   return totals;
 }
-
 
 function addItem() {
 
@@ -2070,6 +2274,21 @@ function addItem() {
         ? $('transferFrom')
             .value
         : '';
+
+  const vendor =
+    vendorForRow(
+      currentLeaf
+    );
+
+  const shippingFee =
+    sourcingMethod
+    &&
+    sourcingMethod !==
+      'transfer'
+      ? shippingFeeForMethod(
+          sourcingMethod
+        )
+      : 0;
 
   if (
     inventory
@@ -2178,6 +2397,10 @@ function addItem() {
       sourcingLabel(
         sourcingMethod
       ),
+
+    vendor,
+
+    shippingFee,
 
     transferFrom,
 
@@ -2370,16 +2593,17 @@ Remove
         totals.salesTax
       );
 
-  $('overnightShipping')
+  $('shippingFee')
     .textContent =
       money(
-        totals.overnightShippingFee
+        totals.shippingFee
       );
 
   $('totalCost')
     .textContent =
       money(
-        totals.totalClientCost
+        totals
+          .totalClientCost
       );
 
   resize();
@@ -2403,7 +2627,7 @@ function payload() {
 
   return {
 
-    version:10,
+    version:12,
 
     items:
       quoteItems,
@@ -2421,20 +2645,26 @@ function payload() {
       totals.totalGrams,
 
     hairProductCost:
-      totals
-        .hairProductCost,
+      totals.hairProductCost,
 
     salesTax:
-      totals
-        .salesTax,
+      totals.salesTax,
 
-    overnightShippingFee:
-      totals
-        .overnightShippingFee,
+    shippingFee:
+      totals.shippingFee,
+
+    extensionLocation:
+      uniq(
+        quoteItems
+          .map(
+            item =>
+              item.location
+          )
+          .filter(Boolean)
+      ).join(' · '),
 
     hairCost:
-      totals
-        .totalClientCost,
+      totals.totalClientCost,
 
     sizeTotals:
       calculateSizeTotals(),
@@ -2450,33 +2680,6 @@ function payload() {
             item
               .sourcingMethod ===
               'transfer'
-        ),
-
-    sameDayCourierRequired:
-      sourcingItems
-        .some(
-          item =>
-            item
-              .sourcingMethod ===
-              'same_day'
-        ),
-
-    standardShippingRequired:
-      sourcingItems
-        .some(
-          item =>
-            item
-              .sourcingMethod ===
-              'standard'
-        ),
-
-    overnightShippingRequired:
-      sourcingItems
-        .some(
-          item =>
-            item
-              .sourcingMethod ===
-              'overnight'
         ),
 
     sourcingItems:
@@ -2509,9 +2712,15 @@ function payload() {
             salon:
               item.location,
 
+            vendor:
+              item.vendor || '',
+
             sourcingMethod:
               item
                 .sourcingMethodLabel,
+
+            shippingFee:
+              item.shippingFee || 0,
 
             transferFrom:
               item.transferFrom,
@@ -2558,7 +2767,6 @@ function payload() {
         .join('\n')
   };
 }
-
 
 function clearSelection(
   clearEverything = true
@@ -2701,11 +2909,9 @@ function pushQuoteFieldsToJotform(
 
     {
       label:
-        'Extension Sales Tax',
+        'Extension Location',
       value:
-        String(
-          data.salesTax || 0
-        )
+        data.extensionLocation || ''
     },
 
     {
@@ -2722,15 +2928,6 @@ function pushQuoteFieldsToJotform(
         'Extension Sourcing Summary',
       value:
         data.sourcingSummary || ''
-    },
-
-    {
-      label:
-        'Extension Overnight Fee',
-      value:
-        String(
-          data.overnightShippingFee || 0
-        )
     }
 
   ];
@@ -2757,7 +2954,6 @@ function pushQuoteFieldsToJotform(
 
   }
 }
-
 
 function restoreValue(
   value
