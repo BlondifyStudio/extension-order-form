@@ -1248,19 +1248,39 @@ function shippingOptionsForVendor(
   ) {
     return [
       {
-        value:'hc_ground',
-        label:'Ground Shipping — $12',
+        value:'hc_usps_mail',
+        label:'USPS Mail (1–2 weeks) — Free',
+        fee:0
+      },
+      {
+        value:'hc_ups_ground',
+        label:'UPS Ground — $12',
         fee:12
       },
       {
-        value:'hc_2day',
-        label:'2-Day Shipping — $17',
+        value:'hc_usps_priority',
+        label:'USPS Priority Mail — $15',
+        fee:15
+      },
+      {
+        value:'hc_ups_3day',
+        label:'UPS 3 Day Select — $17',
         fee:17
       },
       {
-        value:'hc_nextday',
-        label:'Next-Day Shipping — $56',
+        value:'hc_ups_2day',
+        label:'UPS 2nd Day Air — $17',
+        fee:17
+      },
+      {
+        value:'hc_ups_nextday_saver',
+        label:'UPS Next Day Air Saver — $56',
         fee:56
+      },
+      {
+        value:'hc_ups_nextday',
+        label:'UPS Next Day Air — $65',
+        fee:65
       }
     ];
   }
@@ -1271,18 +1291,28 @@ function shippingOptionsForVendor(
   ) {
     return [
       {
-        value:'cm_ground',
-        label:'Standard Shipping — Free',
+        value:'cm_usps_first_class',
+        label:'USPS First Class Mail (5–9 business days) — Free',
         fee:0
       },
       {
-        value:'cm_2day',
-        label:'2-Day Shipping — $30',
+        value:'cm_fedex_express_saver',
+        label:'FedEx Express Saver (3 business days) — $29',
+        fee:29
+      },
+      {
+        value:'cm_fedex_2day',
+        label:'FedEx 2Day (2 business days) — $30',
         fee:30
       },
       {
-        value:'cm_nextday',
-        label:'Next-Day Shipping — $36',
+        value:'cm_fedex_2day_am',
+        label:'FedEx 2Day A.M. (2 business days) — $32',
+        fee:32
+      },
+      {
+        value:'cm_fedex_priority_overnight',
+        label:'FedEx Priority Overnight (1 business day) — $36',
         fee:36
       }
     ];
@@ -2627,7 +2657,7 @@ function payload() {
 
   return {
 
-    version:12,
+    version:13,
 
     items:
       quoteItems,
@@ -2654,14 +2684,13 @@ function payload() {
       totals.shippingFee,
 
     extensionLocation:
-      uniq(
-        quoteItems
-          .map(
-            item =>
-              item.location
+      quoteItems.length
+        ? clean(
+            quoteItems[
+              quoteItems.length - 1
+            ].location
           )
-          .filter(Boolean)
-      ).join(' · '),
+        : '',
 
     hairCost:
       totals.totalClientCost,
@@ -2910,6 +2939,13 @@ function pushQuoteFieldsToJotform(
     {
       label:
         'Extension Location',
+      value:
+        data.extensionLocation || ''
+    },
+
+    {
+      label:
+        'extensionLocation',
       value:
         data.extensionLocation || ''
     },
