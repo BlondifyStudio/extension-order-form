@@ -666,9 +666,21 @@ body{
 
 <script>
 const LOCATIONS = {
-  EV:{label:'Blondify East Village',stockColumn:'Blondify East Village Stock'},
-  WL:{label:'Blondify Williamsburg',stockColumn:'Blondify Williamsburg Stock'},
-  BR:{label:'Brunettify',stockColumn:'Brunettify Stock'}
+  EV:{
+    label:'Blondify East Village',
+    outputAddress:'Blondify East Village, 83 2nd Ave., New York, NY, 10003',
+    stockColumn:'Blondify East Village Stock'
+  },
+  WL:{
+    label:'Blondify Williamsburg',
+    outputAddress:'Blondify Williamsburg, 381A Graham Avenue, Brooklyn, New York, 11211',
+    stockColumn:'Blondify Williamsburg Stock'
+  },
+  BR:{
+    label:'Brunettify',
+    outputAddress:'Brunettify, 54 E. 4th St., New York, NY, 10003',
+    stockColumn:'Brunettify Stock'
+  }
 };
 
 const CATALOG_API_URL =
@@ -2348,7 +2360,11 @@ function servicePayload(){
 
   const location =
     LOCATIONS[$('location').value]
-      ? LOCATIONS[$('location').value].label
+      ? (
+          LOCATIONS[$('location').value].outputAddress
+          ||
+          LOCATIONS[$('location').value].label
+        )
       : '';
 
   const pushupSummary =
@@ -2417,7 +2433,7 @@ function servicePayload(){
     );
 
   return {
-    version:25,
+    version:26,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2659,7 +2675,11 @@ function restoreValue(value){
 
     if(parsed.location){
       const code = Object.keys(LOCATIONS)
-        .find(key=>LOCATIONS[key].label === parsed.location);
+        .find(key=>
+          LOCATIONS[key].label === parsed.location
+          ||
+          LOCATIONS[key].outputAddress === parsed.location
+        );
       if(code) $('location').value = code;
     }
 
