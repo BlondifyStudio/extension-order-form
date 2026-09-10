@@ -197,10 +197,26 @@ button{
 <div class="card">
 
   <div class="section">
-    <div class="section-title">Extension Service Quote</div>
+    <div class="section-title">Extension Service</div>
+    <div class="grid">
+      <div class="full">
+        <label for="extensionServiceType">What extension service are we quoting? <span style="color:#a03d3d">*</span></label>
+        <select id="extensionServiceType" required>
+          <option value="">Select service…</option>
+          <option value="installation">Installation</option>
+          <option value="pushup">Push-Up</option>
+          <option value="removal_installation">Removal and Installation</option>
+          <option value="removal">Removal</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="locationSection" class="section hidden">
+    <div class="section-title">Service Location</div>
 
     <div class="grid">
-      <div>
+      <div class="full">
         <label for="location">Service Location</label>
         <select id="location">
           <option value="">Select location…</option>
@@ -209,8 +225,14 @@ button{
           <option value="BR">Brunettify</option>
         </select>
       </div>
+    </div>
+  </div>
 
-      <div>
+  <div id="hairSourceSection" class="section hidden">
+    <div class="section-title">Hair Source</div>
+
+    <div class="grid">
+      <div class="full">
         <label for="hairSource">Hair Source <span style="color:#a03d3d">*</span></label>
         <select id="hairSource" required>
           <option value="">Select hair source…</option>
@@ -350,7 +372,8 @@ button{
     </div>
   </div>
 
-  <div class="section">
+
+  <div id="removalSection" class="section hidden">
     <div class="section-title">Removal</div>
     <div class="section-note">Add removal services only when needed.</div>
 
@@ -389,7 +412,37 @@ button{
     </div>
   </div>
 
-  <div class="section">
+  <div id="pushupSection" class="section hidden">
+    <div class="section-title">Push-Up</div>
+    <div class="note" style="margin-bottom:12px">
+      Only for extensions previously installed at Blondify. Maximum 8 weeks.
+    </div>
+    <div class="grid">
+      <div>
+        <label for="pushupType">Push-Up Type</label>
+        <select id="pushupType">
+          <option value="">Select push-up…</option>
+          <option value="weft">Weft Push-Up — $80 per row</option>
+          <option value="itip">I-Tip Push-Up — $100 per row</option>
+          <option value="britt_weft">Britt Weft Push-Up — $100 per row</option>
+        </select>
+      </div>
+      <div>
+        <label for="pushupQty">How many rows are we moving up?</label>
+        <input id="pushupQty" type="number" min="1" step="1" value="1">
+      </div>
+      <div class="full">
+        <div class="preview">Push-Up Cost: <strong id="pushupPreview">$0.00</strong></div>
+      </div>
+      <div class="full button-row">
+        <button type="button" id="addPushupBtn" disabled>Add Push-Up</button>
+        <button type="button" class="secondary" id="clearPushupBtn">Clear Selection</button>
+      </div>
+    </div>
+    <div id="pushupList" class="item-list"></div>
+  </div>
+
+  <div id="installationSection" class="section hidden">
     <div class="section-title">Installation</div>
     <div class="section-note">Enter the amount actually being installed. This is independent of how much hair was purchased.</div>
 
@@ -431,7 +484,7 @@ button{
     </div>
   </div>
 
-  <div class="section">
+  <div id="extensionColorSection" class="section hidden">
     <div class="section-title">Extension Color</div>
     <div class="section-note">$30 per row or pack when the extension hair itself is being colored.</div>
 
@@ -451,7 +504,7 @@ button{
     </div>
   </div>
 
-  <div class="section">
+  <div id="treatmentsSection" class="section hidden">
     <div class="section-title">Extension Treatments</div>
     <div class="check-list">
       <label class="check-option"><input class="treatmentCheck" type="checkbox" value="soap_cap"><span>Soap Cap — $35</span></label>
@@ -463,11 +516,12 @@ button{
     </div>
   </div>
 
-  <div class="section">
+  <div id="serviceSummarySection" class="section hidden">
     <div class="section-title">Service Summary</div>
     <div class="totals">
       <div><div class="total-label">Hair</div><div class="total-value" id="summaryHair">$0.00</div></div>
       <div><div class="total-label">Outside Vendor Fee</div><div class="total-value" id="summaryOutside">$0.00</div></div>
+      <div><div class="total-label">Push-Up</div><div class="total-value" id="summaryPushup">$0.00</div></div>
       <div><div class="total-label">Removal</div><div class="total-value" id="summaryRemoval">$0.00</div></div>
       <div><div class="total-label">Installation</div><div class="total-value" id="summaryInstall">$0.00</div></div>
       <div><div class="total-label">Extension Color</div><div class="total-value" id="summaryColor">$0.00</div></div>
@@ -501,6 +555,14 @@ const CACHE_MAX_AGE = 24 * 60 * 60 * 1000;
 const SALES_TAX_RATE = 0.08875;
 const OUTSIDE_VENDOR_RATE = 30;
 const EXTENSION_COLOR_RATE = 30;
+
+const PUSHUP_PRICING = {
+  weft:{label:'Weft Push-Up',unit:'rows',rate:80},
+  itip:{label:'I-Tip Push-Up',unit:'rows',rate:100},
+  britt_weft:{label:'Britt Weft Push-Up',unit:'rows',rate:100}
+};
+
+let pushupItems = [];
 
 const REMOVAL_PRICING = {
   weft:{label:'Wefts',unit:'wefts',rate:30,increment:1},
@@ -1337,6 +1399,160 @@ function servicePrice(rule,quantity){
   return Math.ceil(q / rule.increment) * rule.rate;
 }
 
+function updateExtensionServiceType(){
+  const type =
+    $('extensionServiceType').value;
+
+  const hasSelection =
+    Boolean(type);
+
+  const needsHairSource =
+    type === 'installation'
+    ||
+    type === 'removal_installation';
+
+  const showRemoval =
+    type === 'removal'
+    ||
+    type === 'removal_installation';
+
+  const showInstall =
+    type === 'installation'
+    ||
+    type === 'removal_installation';
+
+  const showPushup =
+    type === 'pushup';
+
+  /*
+    Everything stays hidden until the service type is chosen.
+    Location is relevant for every service.
+  */
+  $('locationSection')
+    .classList
+    .toggle(
+      'hidden',
+      !hasSelection
+    );
+
+  $('hairSourceSection')
+    .classList
+    .toggle(
+      'hidden',
+      !needsHairSource
+    );
+
+  $('removalSection')
+    .classList
+    .toggle(
+      'hidden',
+      !showRemoval
+    );
+
+  $('installationSection')
+    .classList
+    .toggle(
+      'hidden',
+      !showInstall
+    );
+
+  $('pushupSection')
+    .classList
+    .toggle(
+      'hidden',
+      !showPushup
+    );
+
+  /*
+    Color and treatments only belong to installation quotes.
+  */
+  $('extensionColorSection')
+    .classList
+    .toggle(
+      'hidden',
+      !needsHairSource
+    );
+
+  $('treatmentsSection')
+    .classList
+    .toggle(
+      'hidden',
+      !needsHairSource
+    );
+
+  $('serviceSummarySection')
+    .classList
+    .toggle(
+      'hidden',
+      !hasSelection
+    );
+
+  /*
+    Push-Up and Removal do not need hair ordering or hair source.
+  */
+  if (
+    !needsHairSource
+  ) {
+    $('hairOrderSection')
+      .classList
+      .add('hidden');
+
+    $('outsideVendorSection')
+      .classList
+      .add('hidden');
+  }
+  else {
+    updateHairSource();
+  }
+
+  renderServiceSummary();
+  sendLiveData();
+  resize();
+}
+
+function updatePushupPreview(){
+  const rule = PUSHUP_PRICING[$('pushupType').value];
+  const qty = Math.max(1,Math.floor(Number($('pushupQty').value || 1)));
+  $('pushupPreview').textContent = money(rule ? rule.rate * qty : 0);
+  $('addPushupBtn').disabled = !rule;
+  resize();
+}
+
+function addPushup(){
+  const type = $('pushupType').value;
+  const rule = PUSHUP_PRICING[type];
+  if(!rule) return;
+  const quantity = Math.max(1,Math.floor(Number($('pushupQty').value || 1)));
+  pushupItems.push({
+    type,label:rule.label,unit:rule.unit,quantity,total:rule.rate * quantity
+  });
+  $('pushupType').value='';
+  $('pushupQty').value=1;
+  updatePushupPreview();
+  renderPushups();
+}
+
+function renderPushups(){
+  const box=$('pushupList');
+  box.innerHTML=pushupItems.map((item,index)=>`
+    <div class="quote-item">
+      <div>
+        <strong>${escapeHtml(item.label)} · Qty ${item.quantity}</strong>
+        <div class="muted">${money(item.total)}</div>
+      </div>
+      <button type="button" class="remove-btn" data-pushup-remove="${index}">Remove</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-pushup-remove]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      pushupItems.splice(Number(button.dataset.pushupRemove),1);
+      renderPushups();
+    });
+  });
+  renderServiceSummary();
+  sendLiveData();
+  resize();
+}
+
 function updateRemovalPreview(){
   const type = $('removalType').value;
   const rule = REMOVAL_PRICING[type] || null;
@@ -1540,6 +1756,11 @@ function calculateServiceTotals(){
 
   const outside = outsideVendorFee();
 
+  const pushup = pushupItems.reduce(
+    (sum,item)=>sum + Number(item.total || 0),
+    0
+  );
+
   const removal = removalItems.reduce(
     (sum,item)=>sum + Number(item.total || 0),
     0
@@ -1569,6 +1790,8 @@ function calculateServiceTotals(){
       (
         outside
         +
+        pushup
+        +
         removal
         +
         install
@@ -1595,6 +1818,7 @@ function calculateServiceTotals(){
   return {
     hair,
     outside,
+    pushup,
     removal,
     install,
     color,
@@ -1610,6 +1834,7 @@ function renderServiceSummary(){
   $('outsideVendorTotal').textContent = money(totals.outside);
   $('summaryHair').textContent = money(totals.hair);
   $('summaryOutside').textContent = money(totals.outside);
+  $('summaryPushup').textContent = money(totals.pushup);
   $('summaryRemoval').textContent = money(totals.removal);
   $('summaryInstall').textContent = money(totals.install);
   $('summaryColor').textContent = money(totals.color);
@@ -1621,12 +1846,51 @@ function renderServiceSummary(){
 }
 
 function updateHairSource(){
-  const value = $('hairSource').value;
+  const serviceType =
+    $('extensionServiceType').value;
 
-  $('hairOrderSection').classList.toggle('hidden',value !== 'new');
-  $('outsideVendorSection').classList.toggle('hidden',value !== 'outside');
+  const needsHairSource =
+    serviceType === 'installation'
+    ||
+    serviceType === 'removal_installation';
 
-  if(value === 'new'){
+  if (
+    !needsHairSource
+  ) {
+    $('hairOrderSection')
+      .classList
+      .add('hidden');
+
+    $('outsideVendorSection')
+      .classList
+      .add('hidden');
+
+    renderServiceSummary();
+    sendLiveData();
+    resize();
+    return;
+  }
+
+  const value =
+    $('hairSource').value;
+
+  $('hairOrderSection')
+    .classList
+    .toggle(
+      'hidden',
+      value !== 'new'
+    );
+
+  $('outsideVendorSection')
+    .classList
+    .toggle(
+      'hidden',
+      value !== 'outside'
+    );
+
+  if (
+    value === 'new'
+  ) {
     ensureCatalogLoaded();
   }
 
@@ -1657,6 +1921,11 @@ function servicePayload(){
     LOCATIONS[$('location').value]
       ? LOCATIONS[$('location').value].label
       : '';
+
+  const pushupSummary =
+    pushupItems
+      .map(item=>`${item.label} · ${item.quantity} ${item.unit} · ${money(item.total)}`)
+      .join('\n');
 
   const removalSummary =
     removalItems
@@ -1695,6 +1964,7 @@ function servicePayload(){
       ? `Hair Needed By: ${$('neededByDate').value}`
       : '',
     outsideSummary,
+    pushupSummary ? `Push-Up:\n${pushupSummary}` : '',
     removalSummary ? `Removal:\n${removalSummary}` : '',
     installSummary ? `Installation:\n${installSummary}` : '',
     colorSummary,
@@ -1713,7 +1983,8 @@ function servicePayload(){
     );
 
   return {
-    version:5,
+    version:7,
+    extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
     hairSourceLabel:sourceLabel,
@@ -1739,6 +2010,11 @@ function servicePayload(){
     outsideVendor:{
       quantity:Math.max(0,Math.floor(Number($('outsideVendorQty').value || 0))),
       total:serviceTotals.outside
+    },
+
+    pushups:{
+      items:pushupItems,
+      total:serviceTotals.pushup
     },
 
     removal:{
@@ -1829,6 +2105,14 @@ function restoreValue(value){
 
   try{
     const parsed = JSON.parse(value);
+
+    if(parsed.extensionServiceType){
+      $('extensionServiceType').value=parsed.extensionServiceType;
+    }
+
+    if(parsed.pushups && Array.isArray(parsed.pushups.items)){
+      pushupItems=parsed.pushups.items;
+    }
 
     if(parsed.location){
       const code = Object.keys(LOCATIONS)
@@ -2079,6 +2363,16 @@ $('transferFrom').addEventListener('change',validateAddHairButton);
 $('addHairBtn').addEventListener('click',addHairItem);
 $('clearHairSelectionBtn').addEventListener('click',()=>clearHairSelection(true));
 
+$('extensionServiceType').addEventListener('change',updateExtensionServiceType);
+$('pushupType').addEventListener('change',updatePushupPreview);
+$('pushupQty').addEventListener('input',updatePushupPreview);
+$('addPushupBtn').addEventListener('click',addPushup);
+$('clearPushupBtn').addEventListener('click',()=>{
+  $('pushupType').value='';
+  $('pushupQty').value=1;
+  updatePushupPreview();
+});
+
 $('removalType').addEventListener('change',updateRemovalPreview);
 $('removalQty').addEventListener('input',updateRemovalPreview);
 $('addRemovalBtn').addEventListener('click',addRemoval);
@@ -2100,8 +2394,10 @@ document.querySelectorAll('.treatmentCheck').forEach(input=>{
   });
 });
 
+updatePushupPreview();
 updateRemovalPreview();
 updateInstallPreview();
+updateExtensionServiceType();
 renderServiceSummary();
 
 if(typeof JFCustomWidget !== 'undefined'){
@@ -2114,15 +2410,31 @@ if(typeof JFCustomWidget !== 'undefined'){
     }
 
     JFCustomWidget.subscribe('submit',()=>{
+      const serviceType =
+        $('extensionServiceType').value;
+
+      const needsHairSource =
+        serviceType === 'installation'
+        ||
+        serviceType === 'removal_installation';
+
       const valid =
+        Boolean(serviceType)
+        &&
         Boolean($('location').value)
         &&
-        Boolean($('hairSource').value)
-        &&
         (
-          $('hairSource').value !== 'new'
+          !needsHairSource
           ||
-          hairItems.length > 0
+          (
+            Boolean($('hairSource').value)
+            &&
+            (
+              $('hairSource').value !== 'new'
+              ||
+              hairItems.length > 0
+            )
+          )
         );
 
       JFCustomWidget.sendSubmit({
