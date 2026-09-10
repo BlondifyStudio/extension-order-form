@@ -1350,6 +1350,20 @@ function shippingFeeForMethod(
   value
 ) {
 
+  if (
+    value ===
+      'transfer_courier'
+  ) {
+    return 20;
+  }
+
+  if (
+    value ===
+      'transfer_pickup'
+  ) {
+    return 0;
+  }
+
   const vendor =
     currentLeaf
       ? vendorForRow(
@@ -1393,19 +1407,34 @@ function populateSourcing(
       .transferAvailable
   ) {
 
-    const option =
+    const courierOption =
       document.createElement(
         'option'
       );
 
-    option.value =
-      'transfer';
+    courierOption.value =
+      'transfer_courier';
 
-    option.textContent =
-      'Transfer from another salon';
+    courierOption.textContent =
+      'Transfer from another salon — Courier — $20';
 
     select.appendChild(
-      option
+      courierOption
+    );
+
+    const pickupOption =
+      document.createElement(
+        'option'
+      );
+
+    pickupOption.value =
+      'transfer_pickup';
+
+    pickupOption.textContent =
+      'Transfer from another salon — Stylist Pickup — $0';
+
+    select.appendChild(
+      pickupOption
     );
   }
 
@@ -1467,9 +1496,16 @@ function sourcingLabel(
 
   if (
     value ===
-      'transfer'
+      'transfer_courier'
   ) {
-    return 'Transfer from another salon';
+    return 'Transfer from another salon — Courier — $20';
+  }
+
+  if (
+    value ===
+      'transfer_pickup'
+  ) {
+    return 'Transfer from another salon — Stylist Pickup — $0';
   }
 
   const vendor =
@@ -1553,8 +1589,13 @@ function updateSourcingUI() {
     .classList
     .toggle(
       'hidden',
-      method !==
-        'transfer'
+      !(
+        method ===
+          'transfer_courier'
+        ||
+        method ===
+          'transfer_pickup'
+      )
     );
 
   const note =
@@ -1568,7 +1609,10 @@ function updateSourcingUI() {
       method
       &&
       method !==
-        'transfer'
+        'transfer_courier'
+      &&
+      method !==
+        'transfer_pickup'
     ) {
 
       const selected =
@@ -1600,7 +1644,10 @@ function updateSourcingUI() {
 
   if (
     method ===
-      'transfer'
+      'transfer_courier'
+    ||
+    method ===
+      'transfer_pickup'
   ) {
 
     updateTransferOptions();
@@ -1796,8 +1843,13 @@ function validateAddButton() {
     !method
     ||
     (
-      method ===
-        'transfer'
+      (
+        method ===
+          'transfer_courier'
+        ||
+        method ===
+          'transfer_pickup'
+      )
       &&
       !$('transferFrom')
         .value
@@ -2357,11 +2409,16 @@ function addItem() {
         : '';
 
   const transferFrom =
-    sourcingMethod ===
-      'transfer'
-        ? $('transferFrom')
-            .value
-        : '';
+    (
+      sourcingMethod ===
+        'transfer_courier'
+      ||
+      sourcingMethod ===
+        'transfer_pickup'
+    )
+      ? $('transferFrom')
+          .value
+      : '';
 
   const vendor =
     vendorForRow(
@@ -2370,9 +2427,6 @@ function addItem() {
 
   const shippingFee =
     sourcingMethod
-    &&
-    sourcingMethod !==
-      'transfer'
       ? shippingFeeForMethod(
           sourcingMethod
         )
@@ -2394,7 +2448,10 @@ function addItem() {
     sourcingMethod
     &&
     sourcingMethod !==
-      'transfer'
+      'transfer_courier'
+    &&
+    sourcingMethod !==
+      'transfer_pickup'
   ) {
 
     const selectedShippingLabel =
@@ -2767,7 +2824,7 @@ function payload() {
 
   return {
 
-    version:14,
+    version:15,
 
     items:
       quoteItems,
@@ -2821,7 +2878,11 @@ function payload() {
           item =>
             item
               .sourcingMethod ===
-              'transfer'
+              'transfer_courier'
+            ||
+            item
+              .sourcingMethod ===
+              'transfer_pickup'
         ),
 
     sourcingItems:
