@@ -2233,21 +2233,79 @@ function calculateTotals() {
     ) /
     100;
 
-  const shippingFees =
-    quoteItems
-      .map(
-        item =>
+  /*
+    Shipping is charged ONCE PER VENDOR.
+
+    Multiple items from Hair & Compounds:
+    one Hair & Compounds shipping fee.
+
+    Multiple items from Covet & Mane:
+    one Covet & Mane shipping fee.
+
+    If the quote contains multiple vendors,
+    each vendor can contribute one shipping fee.
+  */
+  const shippingByVendor = {};
+
+  quoteItems
+    .forEach(
+      item => {
+
+        const vendor =
+          clean(
+            item.vendor ||
+            'Other'
+          );
+
+        const fee =
           Number(
-            item.shippingFee || 0
-          )
-      );
+            item.shippingFee ||
+            0
+          );
+
+        if (
+          !Object.prototype
+            .hasOwnProperty
+            .call(
+              shippingByVendor,
+              vendor
+            )
+        ) {
+
+          shippingByVendor[
+            vendor
+          ] = 0;
+
+        }
+
+        shippingByVendor[
+          vendor
+        ] =
+          Math.max(
+            shippingByVendor[
+              vendor
+            ],
+            fee
+          );
+
+      }
+    );
+
+  totals.shippingByVendor =
+    shippingByVendor;
 
   totals.shippingFee =
-    shippingFees.length
-      ? Math.max(
-          ...shippingFees
-        )
-      : 0;
+    Object.values(
+      shippingByVendor
+    )
+    .reduce(
+      (sum,fee) =>
+        sum +
+        Number(
+          fee || 0
+        ),
+      0
+    );
 
   totals.totalClientCost =
     Math.round(
@@ -2319,6 +2377,58 @@ function addItem() {
           sourcingMethod
         )
       : 0;
+
+  /*
+    Shipping is a vendor-level choice.
+
+    If this vendor is already in the quote and the
+    stylist chooses a shipping option on this item,
+    update the existing items from that vendor to use
+    the same shipping method and fee.
+
+    This means changing the shipping option later
+    automatically changes it for the whole vendor,
+    rather than stacking another shipping charge.
+  */
+  if (
+    sourcingMethod
+    &&
+    sourcingMethod !==
+      'transfer'
+  ) {
+
+    const selectedShippingLabel =
+      sourcingLabel(
+        sourcingMethod
+      );
+
+    quoteItems
+      .forEach(
+        item => {
+
+          if (
+            clean(
+              item.vendor
+            ) ===
+            clean(
+              vendor
+            )
+          ) {
+
+            item.sourcingMethod =
+              sourcingMethod;
+
+            item.sourcingMethodLabel =
+              selectedShippingLabel;
+
+            item.shippingFee =
+              shippingFee;
+
+          }
+
+        }
+      );
+  }
 
   if (
     inventory
@@ -2657,7 +2767,7 @@ function payload() {
 
   return {
 
-    version:13,
+    version:14,
 
     items:
       quoteItems,
@@ -2682,6 +2792,9 @@ function payload() {
 
     shippingFee:
       totals.shippingFee,
+
+    shippingByVendor:
+      totals.shippingByVendor,
 
     extensionLocation:
       quoteItems.length
@@ -3059,7 +3172,6 @@ function resize() {
     150
   );
 }
-
 
 function observeWidgetSize() {
 
