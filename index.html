@@ -212,21 +212,6 @@ button{
     </div>
   </div>
 
-  <div id="locationSection" class="section hidden">
-    <div class="section-title">Service Location</div>
-
-    <div class="grid">
-      <div class="full">
-        <label for="location">Service Location</label>
-        <select id="location">
-          <option value="">Select location…</option>
-          <option value="EV">Blondify East Village</option>
-          <option value="WL">Blondify Williamsburg</option>
-          <option value="BR">Brunettify</option>
-        </select>
-      </div>
-    </div>
-  </div>
 
   <div id="hairSourceSection" class="section hidden">
     <div class="section-title">Hair Source</div>
@@ -239,6 +224,23 @@ button{
           <option value="new">Purchase New Hair from Blondify</option>
           <option value="existing">Previously Purchased Blondify Hair</option>
           <option value="outside">Outside Vendor / Client-Provided Hair</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="locationSection" class="section hidden">
+    <div class="section-title">Extension Service Location</div>
+
+    <div class="grid">
+      <div class="full">
+        <label for="location">Service Location <span style="color:#a03d3d">*</span></label>
+        <select id="location" required>
+          <option value="">Select location…</option>
+          <option value="EV">Blondify East Village</option>
+          <option value="WL">Blondify Williamsburg</option>
+          <option value="BR">Brunettify</option>
         </select>
       </div>
     </div>
@@ -1995,7 +1997,7 @@ function servicePayload(){
     );
 
   return {
-    version:8,
+    version:9,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
