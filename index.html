@@ -1440,7 +1440,12 @@ function hairDescription(item){
     `${item.product}${special} · ${item.length} · ${item.shade}`,
     `Qty: ${item.quantity}`,
     `Amount: ${item.size || ''} · ${item.totalGrams}g`,
-    `Hair Cost: ${money(item.clientCostTotal)}`
+    `Hair Cost: ${money(item.clientCostTotal + (
+        data.hair.items
+          .filter(x => x.vendor === item.vendor)
+          .reduce((sum, x) => sum + (Number(x.sourcingFee) || 0), 0) /
+        Math.max(1, data.hair.items.filter(x => x.vendor === item.vendor).length)
+      ))}`
   ]
     .filter(Boolean)
     .join('\n\n');
@@ -2131,7 +2136,7 @@ function servicePayload(){
     );
 
   return {
-    version:20,
+    version:21,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
