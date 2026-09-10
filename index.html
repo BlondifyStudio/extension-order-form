@@ -1276,6 +1276,7 @@ function addHairItem(){
 
   const gramsPerItem = num(currentLeaf['Grams']) || 0;
   const clientCostPerItem = num(currentLeaf['Client Cost']) || 0;
+  const wholesalePerItem = num(currentLeaf['Wholesale Cost']) || 0;
 
   hairItems.push({
     sku:clean(currentLeaf['SKU']),
@@ -1289,6 +1290,8 @@ function addHairItem(){
     totalGrams:gramsPerItem * quantity,
     clientCostPerItem,
     clientCostTotal:clientCostPerItem * quantity,
+    wholesalePerItem,
+    wholesaleTotal:wholesalePerItem * quantity,
     location:inventory.selectedLocation,
     inventory,
     vendor,
@@ -1941,6 +1944,26 @@ function servicePayload(){
       .map(item=>`${item.label} · ${item.quantity} ${item.unit} · ${money(item.total)}`)
       .join('\n');
 
+  const hairDetailsSummary =
+    hairItems
+      .map(
+        item => {
+          const sizeText =
+            item.size || '';
+
+          return (
+            `${hairDescription(item)}`
+            +
+            ` · ${sizeText}`
+            +
+            ` · ${item.totalGrams}g`
+            +
+            ` · Hair Cost ${money(item.clientCostTotal)}`
+          );
+        }
+      )
+      .join('\n');
+
   const removalSummary =
     removalItems
       .map(item=>`${item.label} · ${item.quantity} ${item.unit} · ${money(item.total)}`)
@@ -1974,6 +1997,9 @@ function servicePayload(){
     original Jotform hair fields.
   */
   const serviceSummary = [
+    hairSource === 'new' && hairDetailsSummary
+      ? `Hair:\n${hairDetailsSummary}`
+      : '',
     hairSource === 'new' && $('neededByDate').value
       ? `Hair Needed By: ${$('neededByDate').value}`
       : '',
@@ -1997,7 +2023,7 @@ function servicePayload(){
     );
 
   return {
-    version:9,
+    version:10,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2017,7 +2043,30 @@ function servicePayload(){
       description:hairItems.map(hairDescription).join('\n'),
       sourcingNeeded:sourcingItems.length > 0,
       sourcingSummary:sourcingItems.map(item=>{
-        return `${item.product} · ${item.length} · ${item.shade} · Qty to source ${item.inventory.needsSourcing} · ${item.sourcingMethodLabel}${item.transferFrom ? ` from ${item.transferFrom}` : ''}`;
+        const sourceLocation =
+          item.location || '';
+
+        return (
+          `${item.product}`
+          +
+          ` · ${item.length}`
+          +
+          ` · ${item.shade}`
+          +
+          ` · ${item.size || ''}`
+          +
+          ` · ${item.totalGrams}g`
+          +
+          ` · Wholesale ${money(item.wholesaleTotal || 0)}`
+          +
+          (sourceLocation ? ` · Location ${sourceLocation}` : '')
+          +
+          ` · Qty to source ${item.inventory.needsSourcing}`
+          +
+          ` · ${item.sourcingMethodLabel}`
+          +
+          (item.transferFrom ? ` from ${item.transferFrom}` : '')
+        );
       }).join('\n')
     },
 
@@ -2097,8 +2146,6 @@ function pushFieldsToJotform(data){
     {label:'Extension Location',value:data.location || ''},
     {label:'Extension Needed By Date',value:data.neededByDate || ''},
     {label:'Extension Hair Description',value:data.hair.description || ''},
-    {label:'Extension Total Hair',value:data.hair.totalHair === '—' ? '' : data.hair.totalHair},
-    {label:'Extension Total Grams',value:String(data.hair.totalGrams || 0)},
     {label:'Extension Hair Cost',value:String(data.hair.total || 0)},
     {label:'Extension Needs Sourcing',value:data.hair.sourcingNeeded ? 'Yes' : 'No'},
     {label:'Extension Sourcing Summary',value:data.hair.sourcingSummary || ''},
