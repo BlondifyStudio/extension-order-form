@@ -839,9 +839,16 @@ function resetHairFrom(level){
 }
 
 function loadMethods(){
+  const preferredMethodOrder = ['Weft','Wefts','K-Tip','I-Tip','Tape-In','Tape-Ins','Clips-Ins / Halo'];
+  const methods = uniq(catalog.map(r=>r['Method']));
+  const rank = value => {
+    const i = preferredMethodOrder.indexOf(value);
+    return i === -1 ? 999 : i;
+  };
+  methods.sort((a,b) => rank(a) - rank(b));
   optionize(
     $('method'),
-    uniq(catalog.map(r=>r['Method'])),
+    methods,
     'Select method…'
   );
 }
@@ -2124,7 +2131,7 @@ function servicePayload(){
     );
 
   return {
-    version:18,
+    version:20,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2627,5 +2634,50 @@ if(typeof JFCustomWidget !== 'undefined'){
   resize();
 }
 </script>
+
+<script>
+(function(){
+  let lastHeight = 0;
+  let timer = null;
+
+  function reportHeight(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      const h = Math.ceil(document.documentElement.scrollHeight);
+      if(!h || h === lastHeight) return;
+      lastHeight = h;
+      try{
+        if(window.JFCustomWidget && typeof JFCustomWidget.requestFrameResize === 'function'){
+          JFCustomWidget.requestFrameResize({height:h});
+        }
+      }catch(e){}
+    }, 40);
+  }
+
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+  document.addEventListener('change', reportHeight, true);
+  document.addEventListener('click', reportHeight, true);
+
+  if(window.ResizeObserver){
+    const ro = new ResizeObserver(reportHeight);
+    ro.observe(document.documentElement);
+    if(document.body) ro.observe(document.body);
+  }
+
+  if(window.MutationObserver && document.body){
+    const mo = new MutationObserver(reportHeight);
+    mo.observe(document.body,{
+      subtree:true,
+      childList:true,
+      attributes:true,
+      attributeFilter:['class','style','hidden']
+    });
+  }
+
+  [50,150,350,700].forEach(ms=>setTimeout(reportHeight,ms));
+})();
+</script>
+
 </body>
 </html>
