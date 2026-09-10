@@ -292,6 +292,21 @@ textarea{
   margin-top:26px;
 }
 
+
+html,
+body{
+  min-height:0 !important;
+  height:auto !important;
+}
+
+body{
+  overflow:hidden;
+}
+
+.card{
+  min-height:0;
+}
+
 </style>
 </head>
 
@@ -2131,7 +2146,7 @@ function servicePayload(){
     );
 
   return {
-    version:22,
+    version:23,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2493,27 +2508,196 @@ async function ensureCatalogLoaded(){
   resize();
 }
 
-function resize(){
-  if(typeof JFCustomWidget === 'undefined') return;
+let resizeTimer = null;
+let lastRequestedHeight = 0;
 
-  setTimeout(()=>{
-    const contentHeight = Math.max(
-      document.body.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.scrollHeight,
-      document.documentElement.offsetHeight
+function getActualWidgetHeight(){
+  const card =
+    document.querySelector('.card');
+
+  if(!card){
+    return 0;
+  }
+
+  const cardRect =
+    card.getBoundingClientRect();
+
+  const bodyStyle =
+    window.getComputedStyle(
+      document.body
     );
 
+  const paddingTop =
+    parseFloat(
+      bodyStyle.paddingTop
+    ) || 0;
+
+  const paddingBottom =
+    parseFloat(
+      bodyStyle.paddingBottom
+    ) || 0;
+
+  /*
+    Measure the actual visible widget content,
+    NOT document.scrollHeight.
+
+    Jotform can make the iframe itself very tall.
+    scrollHeight then reports that old iframe height
+    even after our content collapses, which is what
+    creates the large empty gap.
+  */
+  return Math.ceil(
+    cardRect.height
+    +
+    paddingTop
+    +
+    paddingBottom
+    +
+    4
+  );
+}
+
+function resize(immediate=false){
+  if(
+    typeof JFCustomWidget === 'undefined'
+    ||
+    typeof JFCustomWidget.requestFrameResize !== 'function'
+  ){
+    return;
+  }
+
+  clearTimeout(
+    resizeTimer
+  );
+
+  const sendHeight = ()=>{
+    const height =
+      getActualWidgetHeight();
+
+    if(
+      !height
+      ||
+      Math.abs(
+        height - lastRequestedHeight
+      ) < 2
+    ){
+      return;
+    }
+
+    lastRequestedHeight =
+      height;
+
     JFCustomWidget.requestFrameResize({
-      height:contentHeight + 30
+      height
     });
-  },150);
+  };
+
+  if(immediate){
+    sendHeight();
+    return;
+  }
+
+  /*
+    A short delay lets hidden/revealed sections finish
+    laying out before we measure them.
+  */
+  resizeTimer =
+    setTimeout(
+      sendHeight,
+      60
+    );
 }
 
 function observeWidgetSize(){
-  if(typeof ResizeObserver === 'undefined') return;
-  const observer = new ResizeObserver(()=>resize());
-  observer.observe(document.body);
+  const card =
+    document.querySelector('.card');
+
+  if(!card){
+    return;
+  }
+
+  if(
+    typeof ResizeObserver !== 'undefined'
+  ){
+    const observer =
+      new ResizeObserver(
+        ()=>{
+          resize();
+        }
+      );
+
+    /*
+      Observe the CARD, not body/documentElement.
+      The card represents the real content height and
+      can both grow and shrink independently of the iframe.
+    */
+    observer.observe(
+      card
+    );
+  }
+
+  if(
+    typeof MutationObserver !== 'undefined'
+  ){
+    const mutationObserver =
+      new MutationObserver(
+        ()=>{
+          resize();
+        }
+      );
+
+    mutationObserver.observe(
+      card,
+      {
+        childList:true,
+        subtree:true,
+        attributes:true,
+        attributeFilter:[
+          'class',
+          'style',
+          'hidden'
+        ]
+      }
+    );
+  }
+
+  window.addEventListener(
+    'resize',
+    ()=>{
+      resize();
+    }
+  );
+
+  document.addEventListener(
+    'change',
+    ()=>{
+      resize();
+    },
+    true
+  );
+
+  document.addEventListener(
+    'click',
+    ()=>{
+      resize();
+    },
+    true
+  );
+
+  /*
+    Recheck a few times during initial Jotform rendering.
+  */
+  [0,100,300,700]
+    .forEach(
+      delay=>{
+        setTimeout(
+          ()=>{
+            resize(true);
+          },
+          delay
+        );
+      }
+    );
 }
 
 $('hairSource').addEventListener('change',updateHairSource);
@@ -2642,49 +2826,6 @@ if(typeof JFCustomWidget !== 'undefined'){
 }
 </script>
 
-<script>
-(function(){
-  let lastHeight = 0;
-  let timer = null;
-
-  function reportHeight(){
-    clearTimeout(timer);
-    timer = setTimeout(function(){
-      const h = Math.ceil(document.documentElement.scrollHeight);
-      if(!h || h === lastHeight) return;
-      lastHeight = h;
-      try{
-        if(window.JFCustomWidget && typeof JFCustomWidget.requestFrameResize === 'function'){
-          JFCustomWidget.requestFrameResize({height:h});
-        }
-      }catch(e){}
-    }, 40);
-  }
-
-  window.addEventListener('load', reportHeight);
-  window.addEventListener('resize', reportHeight);
-  document.addEventListener('change', reportHeight, true);
-  document.addEventListener('click', reportHeight, true);
-
-  if(window.ResizeObserver){
-    const ro = new ResizeObserver(reportHeight);
-    ro.observe(document.documentElement);
-    if(document.body) ro.observe(document.body);
-  }
-
-  if(window.MutationObserver && document.body){
-    const mo = new MutationObserver(reportHeight);
-    mo.observe(document.body,{
-      subtree:true,
-      childList:true,
-      attributes:true,
-      attributeFilter:['class','style','hidden']
-    });
-  }
-
-  [50,150,350,700].forEach(ms=>setTimeout(reportHeight,ms));
-})();
-</script>
 
 </body>
 </html>
