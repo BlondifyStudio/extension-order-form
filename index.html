@@ -2417,7 +2417,7 @@ function servicePayload(){
     );
 
   return {
-    version:24,
+    version:25,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2530,35 +2530,110 @@ function pushFieldsToJotform(data){
     No separate Jotform fields are required for
     installation/removal/color/treatments.
   */
-  const fields = [
-    {label:'Extension Location',value:data.location || ''},
-    {label:'Extension Needed By Date',value:data.neededByDate || ''},
-    {label:'Extension Hair Description',value:(data.hair.description || '').replace(
-      /Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g,
-      (function(){
-        const count = (data.hair.description || '').match(/Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g);
-        if(count && count.length === 1) return 'Hair Cost: ' + money(data.hair.total || 0);
-        return arguments[0];
-      })
-    )},
-    {label:'Extension Hair Cost',value:String(data.hair.total || 0)},
-    {label:'Extension Needs Sourcing',value:
-      !data.hair.sourcingNeeded
-        ? 'No'
-        : (
-            data.hair.items.some(item =>
-              item.inventory &&
-              item.inventory.needsSourcing > 0 &&
-              /courier/i.test(item.sourcingMethodLabel || '')
-            )
-              ? 'Yes — Courier'
-              : 'Yes — Shipping'
-          )
-    },
-    {label:'Extension Sourcing Summary',value:data.hair.sourcingSummary || ''},
+  const hasHair =
+    Array.isArray(data.hair.items)
+    &&
+    data.hair.items.length > 0
+    &&
+    Number(data.hair.total || 0) > 0;
 
-    {label:'Extension Service Summary',value:data.serviceSummary || ''},
-    {label:'Extension Service Total',value:String(data.serviceTotal || 0)}
+  const hasService =
+    Number(data.serviceTotal || 0) > 0;
+
+  const hairDescriptionValue =
+    hasHair
+      ? (data.hair.description || '').replace(
+          /Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g,
+          (function(){
+            const count =
+              (data.hair.description || '')
+                .match(
+                  /Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g
+                );
+
+            if(
+              count
+              &&
+              count.length === 1
+            ){
+              return (
+                'Hair Cost: '
+                +
+                money(
+                  data.hair.total || 0
+                )
+              );
+            }
+
+            return arguments[0];
+          })
+        )
+      : '';
+
+  const fields = [
+    {
+      label:'Extension Location',
+      value:hasHair
+        ? (data.location || '')
+        : ''
+    },
+    {
+      label:'Extension Needed By Date',
+      value:hasHair
+        ? (data.neededByDate || '')
+        : ''
+    },
+    {
+      label:'Extension Hair Description',
+      value:hairDescriptionValue
+    },
+    {
+      label:'Extension Hair Cost',
+      value:hasHair
+        ? String(data.hair.total)
+        : ''
+    },
+    {
+      label:'Extension Needs Sourcing',
+      value:hasHair
+        ? (
+            !data.hair.sourcingNeeded
+              ? 'No'
+              : (
+                  data.hair.items.some(item =>
+                    item.inventory
+                    &&
+                    item.inventory.needsSourcing > 0
+                    &&
+                    /courier/i.test(
+                      item.sourcingMethodLabel || ''
+                    )
+                  )
+                    ? 'Yes — Courier'
+                    : 'Yes — Shipping'
+                )
+          )
+        : ''
+    },
+    {
+      label:'Extension Sourcing Summary',
+      value:hasHair
+        ? (data.hair.sourcingSummary || '')
+        : ''
+    },
+
+    {
+      label:'Extension Service Summary',
+      value:hasService
+        ? (data.serviceSummary || '')
+        : ''
+    },
+    {
+      label:'Extension Service Total',
+      value:hasService
+        ? String(data.serviceTotal)
+        : ''
+    }
   ];
 
   try{
