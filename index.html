@@ -2199,7 +2199,7 @@ function sendLiveData() {
       'undefined'
     ||
     typeof JFCustomWidget
-      .setFieldsValueByLabel !==
+      .setFieldsValueById !==
       'function'
   ) {
     return;
@@ -2220,15 +2220,12 @@ function sendLiveData() {
   const fields = [
 
     {
-      label:
-        'Extension Hair Description',
-      value:
-        description
+      id:'1106',
+      value:description
     },
 
     {
-      label:
-        'Extension Total Hair',
+      id:'1108',
       value:
         data.totalHair === '—'
           ? ''
@@ -2236,8 +2233,7 @@ function sendLiveData() {
     },
 
     {
-      label:
-        'Extension Total Grams',
+      id:'1109',
       value:
         String(
           data.totalGrams || 0
@@ -2245,8 +2241,7 @@ function sendLiveData() {
     },
 
     {
-      label:
-        'Extension Hair Cost',
+      id:'1110',
       value:
         String(
           data.hairCost || 0
@@ -2254,8 +2249,7 @@ function sendLiveData() {
     },
 
     {
-      label:
-        'Extension Needs Sourcing',
+      id:'1111',
       value:
         data.sourcingNeeded
           ? 'Yes'
@@ -2263,15 +2257,13 @@ function sendLiveData() {
     },
 
     {
-      label:
-        'Extension Sourcing Summary',
+      id:'1112',
       value:
         data.sourcingSummary || ''
     },
 
     {
-      label:
-        'Extension Overnight Fee',
+      id:'1113',
       value:
         String(
           data.overnightShippingFee || 0
@@ -2283,7 +2275,7 @@ function sendLiveData() {
   try {
 
     JFCustomWidget
-      .setFieldsValueByLabel(
+      .setFieldsValueById(
         fields
       );
 
@@ -2297,66 +2289,6 @@ function sendLiveData() {
 
   }
 }
-
-function restoreValue(value) {
-  if (!value) {
-    return;
-  }
-
-  try {
-    const parsed =
-      JSON.parse(value);
-
-    if (
-      Array.isArray(
-        parsed.items
-      )
-    ) {
-      quoteItems =
-        parsed.items;
-
-      renderQuote();
-    }
-  } catch(error) {}
-}
-
-function resize() {
-
-  if (
-    typeof JFCustomWidget ===
-    'undefined'
-  ) {
-    return;
-  }
-
-  setTimeout(
-    function() {
-
-      const contentHeight =
-        Math.max(
-          document.body.scrollHeight,
-          document.body.offsetHeight,
-          document.documentElement.scrollHeight,
-          document.documentElement.offsetHeight,
-          document.documentElement.clientHeight
-        );
-
-      const requestedHeight =
-        Math.max(
-          1500,
-          contentHeight + 150
-        );
-
-      JFCustomWidget
-        .requestFrameResize({
-          height: requestedHeight
-        });
-
-    },
-    250
-  );
-}
-
 
 function observeWidgetSize() {
 
