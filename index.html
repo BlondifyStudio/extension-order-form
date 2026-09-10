@@ -2124,7 +2124,7 @@ function servicePayload(){
     );
 
   return {
-    version:17,
+    version:18,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2242,7 +2242,19 @@ function pushFieldsToJotform(data){
     {label:'Extension Needed By Date',value:data.neededByDate || ''},
     {label:'Extension Hair Description',value:data.hair.description || ''},
     {label:'Extension Hair Cost',value:String(data.hair.total || 0)},
-    {label:'Extension Needs Sourcing',value:data.hair.sourcingNeeded ? 'Yes' : 'No'},
+    {label:'Extension Needs Sourcing',value:
+      !data.hair.sourcingNeeded
+        ? 'No'
+        : (
+            data.hair.items.some(item =>
+              item.inventory &&
+              item.inventory.needsSourcing > 0 &&
+              /courier/i.test(item.sourcingMethodLabel || '')
+            )
+              ? 'Yes — Courier'
+              : 'Yes — Shipping'
+          )
+    },
     {label:'Extension Sourcing Summary',value:data.hair.sourcingSummary || ''},
 
     {label:'Extension Service Summary',value:data.serviceSummary || ''},
