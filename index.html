@@ -3040,30 +3040,14 @@ function resize() {
 
       const contentHeight =
         Math.max(
-          document.body
-            .scrollHeight,
-
-          document.body
-            .offsetHeight,
-
-          document
-            .documentElement
-            .scrollHeight,
-
-          document
-            .documentElement
-            .offsetHeight,
-
-          document
-            .documentElement
-            .clientHeight
+          document.body.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.scrollHeight,
+          document.documentElement.offsetHeight
         );
 
       const requestedHeight =
-        Math.max(
-          1500,
-          contentHeight + 150
-        );
+        contentHeight + 30;
 
       JFCustomWidget
         .requestFrameResize({
@@ -3072,7 +3056,7 @@ function resize() {
         });
 
     },
-    250
+    150
   );
 }
 
