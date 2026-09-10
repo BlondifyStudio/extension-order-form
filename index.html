@@ -1440,12 +1440,7 @@ function hairDescription(item){
     `${item.product}${special} · ${item.length} · ${item.shade}`,
     `Qty: ${item.quantity}`,
     `Amount: ${item.size || ''} · ${item.totalGrams}g`,
-    `Hair Cost: ${money(item.clientCostTotal + (
-        data.hair.items
-          .filter(x => x.vendor === item.vendor)
-          .reduce((sum, x) => sum + (Number(x.sourcingFee) || 0), 0) /
-        Math.max(1, data.hair.items.filter(x => x.vendor === item.vendor).length)
-      ))}`
+    `Hair Cost: ${money(item.clientCostTotal)}`
   ]
     .filter(Boolean)
     .join('\n\n');
@@ -2136,7 +2131,7 @@ function servicePayload(){
     );
 
   return {
-    version:21,
+    version:22,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2252,7 +2247,14 @@ function pushFieldsToJotform(data){
   const fields = [
     {label:'Extension Location',value:data.location || ''},
     {label:'Extension Needed By Date',value:data.neededByDate || ''},
-    {label:'Extension Hair Description',value:data.hair.description || ''},
+    {label:'Extension Hair Description',value:(data.hair.description || '').replace(
+      /Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g,
+      (function(){
+        const count = (data.hair.description || '').match(/Hair Cost:\s*\$[\d,]+(?:\.\d{2})?/g);
+        if(count && count.length === 1) return 'Hair Cost: ' + money(data.hair.total || 0);
+        return arguments[0];
+      })
+    )},
     {label:'Extension Hair Cost',value:String(data.hair.total || 0)},
     {label:'Extension Needs Sourcing',value:
       !data.hair.sourcingNeeded
