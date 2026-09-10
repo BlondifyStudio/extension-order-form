@@ -2183,12 +2183,7 @@ function sendLiveData() {
       )
   });
 
-  pushQuoteFieldsToJotform(
-    data
-  );
-}
-
-  function pushQuoteFieldsToJotform(
+function pushQuoteFieldsToJotform(
   existingData = null
 ) {
 
@@ -2199,7 +2194,7 @@ function sendLiveData() {
       'undefined'
     ||
     typeof JFCustomWidget
-      .setFieldsValueById !==
+      .setFieldsValueByLabel !==
       'function'
   ) {
     return;
@@ -2220,12 +2215,15 @@ function sendLiveData() {
   const fields = [
 
     {
-      id:'1106',
-      value:description
+      label:
+        'Extension Hair Description',
+      value:
+        description
     },
 
     {
-      id:'1108',
+      label:
+        'Extension Total',
       value:
         data.totalHair === '—'
           ? ''
@@ -2233,7 +2231,8 @@ function sendLiveData() {
     },
 
     {
-      id:'1109',
+      label:
+        'Hair Extension Total Grams',
       value:
         String(
           data.totalGrams || 0
@@ -2241,7 +2240,8 @@ function sendLiveData() {
     },
 
     {
-      id:'1110',
+      label:
+        'Extension Hair Cost',
       value:
         String(
           data.hairCost || 0
@@ -2249,7 +2249,8 @@ function sendLiveData() {
     },
 
     {
-      id:'1111',
+      label:
+        'Extension Needs Sourcing',
       value:
         data.sourcingNeeded
           ? 'Yes'
@@ -2257,13 +2258,15 @@ function sendLiveData() {
     },
 
     {
-      id:'1112',
+      label:
+        'Extension Sourcing Summary',
       value:
         data.sourcingSummary || ''
     },
 
     {
-      id:'1113',
+      label:
+        'Extension Overnight Fee',
       value:
         String(
           data.overnightShippingFee || 0
@@ -2275,15 +2278,20 @@ function sendLiveData() {
   try {
 
     JFCustomWidget
-      .setFieldsValueById(
+      .setFieldsValueByLabel(
         fields
       );
+
+    console.log(
+      'Quote fields sent to Jotform',
+      fields
+    );
 
   }
   catch(error) {
 
-    console.warn(
-      'Could not push quote fields to Jotform:',
+    console.error(
+      'Could not populate Jotform fields:',
       error
     );
 
