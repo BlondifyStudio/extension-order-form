@@ -1426,14 +1426,11 @@ function updateExtensionServiceType(){
 
   /*
     Everything stays hidden until the service type is chosen.
-    Location is relevant for every service.
+    Location is only needed when we are actually ordering new hair.
   */
   $('locationSection')
     .classList
-    .toggle(
-      'hidden',
-      !hasSelection
-    );
+    .add('hidden');
 
   $('hairSourceSection')
     .classList
@@ -1493,6 +1490,10 @@ function updateExtensionServiceType(){
   if (
     !needsHairSource
   ) {
+    $('locationSection')
+      .classList
+      .add('hidden');
+
     $('hairOrderSection')
       .classList
       .add('hidden');
@@ -1857,6 +1858,10 @@ function updateHairSource(){
   if (
     !needsHairSource
   ) {
+    $('locationSection')
+      .classList
+      .add('hidden');
+
     $('hairOrderSection')
       .classList
       .add('hidden');
@@ -1873,6 +1878,13 @@ function updateHairSource(){
 
   const value =
     $('hairSource').value;
+
+  $('locationSection')
+    .classList
+    .toggle(
+      'hidden',
+      value !== 'new'
+    );
 
   $('hairOrderSection')
     .classList
@@ -1983,7 +1995,7 @@ function servicePayload(){
     );
 
   return {
-    version:7,
+    version:8,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2418,21 +2430,31 @@ if(typeof JFCustomWidget !== 'undefined'){
         ||
         serviceType === 'removal_installation';
 
+      const hairSource =
+        $('hairSource').value;
+
+      const orderingNewHair =
+        needsHairSource
+        &&
+        hairSource === 'new';
+
       const valid =
         Boolean(serviceType)
-        &&
-        Boolean($('location').value)
         &&
         (
           !needsHairSource
           ||
           (
-            Boolean($('hairSource').value)
+            Boolean(hairSource)
             &&
             (
-              $('hairSource').value !== 'new'
+              !orderingNewHair
               ||
-              hairItems.length > 0
+              (
+                Boolean($('location').value)
+                &&
+                hairItems.length > 0
+              )
             )
           )
         );
