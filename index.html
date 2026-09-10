@@ -207,6 +207,91 @@ textarea{
   padding-top:14px;
   padding-bottom:14px;
 }
+
+.microbond-reminder{
+  margin:18px 0 26px;
+  padding:16px 18px;
+  border:1px solid #ddd6e0;
+  border-radius:14px;
+  background:#f8f5f9;
+  color:#4d4650;
+  font-size:14px;
+  line-height:1.55;
+}
+.microbond-reminder strong{
+  display:block;
+  margin-bottom:5px;
+  font-size:15px;
+  font-weight:750;
+  color:#332f35;
+}
+
+#inventoryMeta{
+  margin-top:24px;
+  margin-bottom:24px;
+  padding:22px 20px;
+  row-gap:18px;
+}
+
+#stockStatus{
+  margin-top:22px;
+  margin-bottom:22px;
+  padding:18px 20px;
+  font-size:16px;
+  line-height:1.5;
+}
+
+#sourcingWrap{
+  margin-top:28px;
+  margin-bottom:28px;
+  padding:24px 22px;
+  border:2px solid #d8cedd;
+  border-radius:16px;
+  background:#faf7fb;
+}
+
+.sourcing-heading{
+  margin-bottom:8px;
+  font-size:21px;
+  font-weight:850;
+  text-decoration:underline;
+  text-underline-offset:5px;
+}
+
+.sourcing-subnote{
+  margin-bottom:22px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.55;
+}
+
+#sourcingWrap label{
+  display:block;
+  margin-bottom:10px;
+  font-size:16px;
+  font-weight:800;
+}
+
+#sourcingMethod,
+#transferFrom{
+  margin-bottom:18px;
+}
+
+#transferFromWrap{
+  margin-top:20px !important;
+}
+
+#shippingMethodNote{
+  margin-top:20px;
+  padding:18px 20px;
+  font-size:16px;
+  line-height:1.5;
+}
+
+#sourcingWrap + .button-row{
+  margin-top:26px;
+}
+
 </style>
 </head>
 
@@ -354,7 +439,9 @@ textarea{
 
       <div id="stockStatus" class="status hidden"></div>
 
-      <div id="sourcingWrap" class="hidden" style="margin-top:12px">
+      <div id="sourcingWrap" class="hidden">
+        <div class="sourcing-heading">Sourcing Required</div>
+        <div class="sourcing-subnote">This hair is not available at the selected salon. Choose how it should be sourced before adding it to the order.</div>
         <label for="sourcingMethod">How should this hair be sourced?</label>
         <select id="sourcingMethod">
           <option value="">Select sourcing method…</option>
@@ -464,6 +551,10 @@ textarea{
   <div id="installationSection" class="section hidden">
     <div class="section-title">Installation</div>
     <div class="section-note">Enter the amount actually being installed. This is independent of how much hair was purchased.</div>
+    <div class="microbond-reminder">
+      <strong>Micro Bond Note</strong>
+      If any K-Tips or I-Tips are being installed as micro bonds, add the Micro Bonds installation separately below. Micro bonds are $275 per 50 bonds for either method.
+    </div>
 
     <div class="grid">
       <div class="full">
@@ -2033,7 +2124,7 @@ function servicePayload(){
     );
 
   return {
-    version:15,
+    version:17,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
