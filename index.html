@@ -428,41 +428,33 @@ No hair added yet.
 <div class="totals">
 
 <div>
-<div class="total-label">
-Total Hair
-</div>
-<div
-  class="total-value"
-  id="totalHair">
-—
-</div>
+<div class="total-label">Total Hair</div>
+<div class="total-value" id="totalHair">—</div>
 </div>
 
 <div>
-<div class="total-label">
-Total Grams
-</div>
-<div
-  class="total-value"
-  id="totalGrams">
-0g
-</div>
+<div class="total-label">Total Grams</div>
+<div class="total-value" id="totalGrams">0g</div>
 </div>
 
 <div>
-<div class="total-label">
-Hair Cost
-</div>
-<div
-  class="total-value"
-  id="totalCost">
-$0.00
+<div class="total-label">Hair Subtotal</div>
+<div class="total-value" id="hairSubtotal">$0.00</div>
 </div>
 
-<div
-  id="shippingFeeNote"
-  class="fee hidden">
+<div>
+<div class="total-label">Sales Tax (8.875%)</div>
+<div class="total-value" id="salesTax">$0.00</div>
 </div>
+
+<div>
+<div class="total-label">Overnight Shipping</div>
+<div class="total-value" id="overnightShipping">$0.00</div>
+</div>
+
+<div>
+<div class="total-label">Grand Total</div>
+<div class="total-value" id="totalCost">$0.00</div>
 </div>
 
 </div>
@@ -500,6 +492,8 @@ const EXTENSION_CACHE_TIME_KEY =
 
 const EXTENSION_BROWSER_CACHE_MAX_AGE =
   24 * 60 * 60 * 1000;
+
+const SALES_TAX_RATE = 0.08875;
 
 let catalog = [];
 let quoteItems = [];
@@ -2013,12 +2007,25 @@ function calculateTotals() {
         : 0;
 
   totals
+    .salesTax =
+      Math.round(
+        totals.hairProductCost *
+        SALES_TAX_RATE *
+        100
+      ) / 100;
+
+  totals
     .totalClientCost =
-      totals
-        .hairProductCost
-      +
-      totals
-        .overnightShippingFee;
+      Math.round(
+        (
+          totals.hairProductCost
+          +
+          totals.salesTax
+          +
+          totals.overnightShippingFee
+        ) *
+        100
+      ) / 100;
 
   return totals;
 }
@@ -2351,35 +2358,29 @@ Remove
     .textContent =
       `${totals.totalGrams}g`;
 
+  $('hairSubtotal')
+    .textContent =
+      money(
+        totals.hairProductCost
+      );
+
+  $('salesTax')
+    .textContent =
+      money(
+        totals.salesTax
+      );
+
+  $('overnightShipping')
+    .textContent =
+      money(
+        totals.overnightShippingFee
+      );
+
   $('totalCost')
     .textContent =
       money(
-        totals
-          .totalClientCost
+        totals.totalClientCost
       );
-
-  if (
-    totals
-      .overnightShippingFee >
-      0
-  ) {
-
-    $('shippingFeeNote')
-      .textContent =
-        'Includes $50 overnight shipping';
-
-    $('shippingFeeNote')
-      .classList
-      .remove('hidden');
-
-  }
-  else {
-
-    $('shippingFeeNote')
-      .classList
-      .add('hidden');
-
-  }
 
   resize();
 }
@@ -2422,6 +2423,10 @@ function payload() {
     hairProductCost:
       totals
         .hairProductCost,
+
+    salesTax:
+      totals
+        .salesTax,
 
     overnightShippingFee:
       totals
@@ -2691,6 +2696,15 @@ function pushQuoteFieldsToJotform(
       value:
         String(
           data.hairCost || 0
+        )
+    },
+
+    {
+      label:
+        'Extension Sales Tax',
+      value:
+        String(
+          data.salesTax || 0
         )
     },
 
