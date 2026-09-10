@@ -1545,6 +1545,277 @@ function servicePrice(rule,quantity){
   return Math.ceil(q / rule.increment) * rule.rate;
 }
 
+
+function clearHairOrderData(){
+  /*
+    Anything tied specifically to ordering NEW hair gets wiped
+    when Hair Source changes so stale hair can never remain in a quote.
+  */
+  hairItems = [];
+  currentLeaf = null;
+
+  if($('neededByDate')){
+    $('neededByDate').value = '';
+  }
+
+  if($('location')){
+    $('location').value = '';
+  }
+
+  if($('outsideVendorQty')){
+    $('outsideVendorQty').value = 0;
+  }
+
+  if($('method')){
+    $('method').value = '';
+  }
+
+  if($('style')){
+    $('style').innerHTML = '';
+    $('style').disabled = true;
+  }
+
+  if($('product')){
+    $('product').innerHTML = '';
+    $('product').disabled = true;
+  }
+
+  if($('special')){
+    $('special').innerHTML = '';
+    $('special').disabled = true;
+  }
+
+  if($('length')){
+    $('length').innerHTML = '';
+    $('length').disabled = true;
+  }
+
+  if($('shade')){
+    $('shade').innerHTML = '';
+    $('shade').disabled = true;
+  }
+
+  if($('qty')){
+    $('qty').value = 1;
+  }
+
+  if($('sourcingMethod')){
+    $('sourcingMethod').value = '';
+  }
+
+  if($('transferFrom')){
+    $('transferFrom').value = '';
+  }
+
+  [
+    'styleWrap',
+    'specialWrap',
+    'selectionMeta',
+    'inventoryMeta',
+    'stockStatus',
+    'sourcingWrap',
+    'conflict'
+  ]
+  .forEach(id=>{
+    if($(id)){
+      $(id).classList.add('hidden');
+    }
+  });
+
+  if($('hairItems')){
+    $('hairItems').innerHTML =
+      '<div class="empty">No hair added yet.</div>';
+  }
+
+  if($('totalHair')){
+    $('totalHair').textContent = '—';
+  }
+
+  if($('totalGrams')){
+    $('totalGrams').textContent = '0g';
+  }
+
+  if($('hairSubtotal')){
+    $('hairSubtotal').textContent = '$0.00';
+  }
+
+  if($('salesTax')){
+    $('salesTax').textContent = '$0.00';
+  }
+
+  if($('shippingFee')){
+    $('shippingFee').textContent = '$0.00';
+  }
+
+  if($('hairTotal')){
+    $('hairTotal').textContent = '$0.00';
+  }
+
+  if($('addHairBtn')){
+    $('addHairBtn').disabled = true;
+  }
+}
+
+
+function clearInstallationExtras(){
+  installItems = [];
+
+  if($('installType')){
+    $('installType').value = '';
+  }
+
+  if($('installQty')){
+    $('installQty').value = 1;
+  }
+
+  if($('installItems')){
+    $('installItems').innerHTML =
+      '<div class="empty">No installation services added.</div>';
+  }
+
+  if($('installPreview')){
+    $('installPreview').textContent = '$0.00';
+  }
+
+  if($('addInstallBtn')){
+    $('addInstallBtn').disabled = true;
+  }
+
+  if($('extensionColor')){
+    $('extensionColor').value = 'no';
+  }
+
+  if($('extensionColorQty')){
+    $('extensionColorQty').value = 1;
+  }
+
+  if($('extensionColorQtyWrap')){
+    $('extensionColorQtyWrap').classList.add('hidden');
+  }
+
+  document
+    .querySelectorAll('.treatmentCheck')
+    .forEach(input=>{
+      input.checked = false;
+    });
+
+  if($('hairSource')){
+    $('hairSource').value = '';
+  }
+
+  clearHairOrderData();
+}
+
+
+function clearRemovalData(){
+  removalItems = [];
+
+  if($('removalType')){
+    $('removalType').value = '';
+  }
+
+  if($('removalQty')){
+    $('removalQty').value = 1;
+  }
+
+  if($('removalItems')){
+    $('removalItems').innerHTML =
+      '<div class="empty">No removal services added.</div>';
+  }
+
+  if($('removalPreview')){
+    $('removalPreview').textContent = '$0.00';
+  }
+
+  if($('addRemovalBtn')){
+    $('addRemovalBtn').disabled = true;
+  }
+}
+
+
+function clearPushupData(){
+  pushupItems = [];
+
+  if($('pushupType')){
+    $('pushupType').value = '';
+  }
+
+  if($('pushupQty')){
+    $('pushupQty').value = 1;
+  }
+
+  if($('pushupList')){
+    $('pushupList').innerHTML = '';
+  }
+
+  if($('pushupPreview')){
+    $('pushupPreview').textContent = '$0.00';
+  }
+
+  if($('addPushupBtn')){
+    $('addPushupBtn').disabled = true;
+  }
+}
+
+
+function handleHairSourceChange(){
+  /*
+    Changing Hair Source always clears data belonging to the
+    previously selected source before showing the new workflow.
+  */
+  clearHairOrderData();
+
+  updateHairSource();
+
+  renderServiceSummary();
+  sendLiveData();
+  resize();
+}
+
+
+function handleExtensionServiceTypeChange(){
+  const type =
+    $('extensionServiceType').value;
+
+  const keepsRemoval =
+    type === 'removal'
+    ||
+    type === 'removal_installation';
+
+  const keepsInstallation =
+    type === 'installation'
+    ||
+    type === 'removal_installation';
+
+  const keepsPushup =
+    type === 'pushup';
+
+  /*
+    Clear anything that no longer belongs to the newly chosen
+    service type. Relevant data is preserved when it still applies:
+    e.g. switching Removal + Installation to Installation keeps
+    the installation, but removes the old removal.
+  */
+  if(!keepsRemoval){
+    clearRemovalData();
+  }
+
+  if(!keepsInstallation){
+    clearInstallationExtras();
+  }
+
+  if(!keepsPushup){
+    clearPushupData();
+  }
+
+  updateExtensionServiceType();
+
+  renderServiceSummary();
+  sendLiveData();
+  resize();
+}
+
+
 function updateExtensionServiceType(){
   const type =
     $('extensionServiceType').value;
@@ -2146,7 +2417,7 @@ function servicePayload(){
     );
 
   return {
-    version:23,
+    version:24,
     extensionServiceType:$('extensionServiceType').value || '',
     location,
     hairSource,
@@ -2700,7 +2971,7 @@ function observeWidgetSize(){
     );
 }
 
-$('hairSource').addEventListener('change',updateHairSource);
+$('hairSource').addEventListener('change',handleHairSourceChange);
 
 $('neededByDate').addEventListener('change',()=>{
   renderServiceSummary();
@@ -2729,7 +3000,7 @@ $('transferFrom').addEventListener('change',validateAddHairButton);
 $('addHairBtn').addEventListener('click',addHairItem);
 $('clearHairSelectionBtn').addEventListener('click',()=>clearHairSelection(true));
 
-$('extensionServiceType').addEventListener('change',updateExtensionServiceType);
+$('extensionServiceType').addEventListener('change',handleExtensionServiceTypeChange);
 $('pushupType').addEventListener('change',updatePushupPreview);
 $('pushupQty').addEventListener('input',updatePushupPreview);
 $('addPushupBtn').addEventListener('click',addPushup);
